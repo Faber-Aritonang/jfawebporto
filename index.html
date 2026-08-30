@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jimmy Faber — AI Implementator</title>
+<meta name="description" content="Portfolio Jimmy Faber — Implementator AI to Your Business System. Data, AI & Automation.">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        base: '#050810',
+        accent: '#22d3ee',
+        accent2: '#a855f7',
+      },
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+        mono: ['JetBrains Mono', 'monospace'],
+      }
+    }
+  }
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  html { scroll-behavior: smooth; }
+  body { background: #050810; }
+  /* Background futuristik */
+  .bg-grid {
+    background-image:
+      linear-gradient(rgba(34,211,238,.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(34,211,238,.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .glow-orb {
+    position: fixed; border-radius: 9999px; filter: blur(120px);
+    opacity: .25; pointer-events: none; z-index: 0;
+  }
+  /* Glassmorphism */
+  .glass {
+    background: rgba(255,255,255,.04);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  .glass-hover { transition: all .3s ease; }
+  .glass-hover:hover {
+    background: rgba(255,255,255,.07);
+    border-color: rgba(34,211,238,.4);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 40px rgba(34,211,238,.15);
+  }
+  .text-gradient {
+    background: linear-gradient(90deg, #22d3ee, #a855f7);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .btn-glow {
+    background: linear-gradient(90deg, #0891b2, #7c3aed);
+    transition: all .3s ease;
+  }
+  .btn-glow:hover { box-shadow: 0 0 30px rgba(34,211,238,.4); transform: translateY(-2px); }
+  .typing::after {
+    content: '|'; animation: blink 1s infinite; color: #22d3ee;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+  .float { animation: float 5s ease-in-out infinite; }
+  /* Reveal on scroll */
+  .reveal { opacity: 0; transform: translateY(24px); transition: all .7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  /* Neural network animation */
+  .neural line { stroke: rgba(34,211,238,.3); }
+  .neural circle { fill: #22d3ee; }
+</style>
+</head>
+<body class="bg-base text-gray-200 font-sans antialiased overflow-x-hidden">
+
+<!-- Background effects -->
+<div class="bg-grid fixed inset-0 z-0"></div>
+<div class="glow-orb w-96 h-96 bg-cyan-500 top-[-100px] left-[-100px]"></div>
+<div class="glow-orb w-96 h-96 bg-purple-600 bottom-[-100px] right-[-100px]"></div>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="glass fixed top-0 left-0 right-0 z-50">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="#hero" class="font-mono font-bold text-lg">
+      <span class="text-accent">&lt;</span>JimmyFaber<span class="text-accent2">/&gt;</span>
+    </a>
+    <div class="hidden md:flex items-center gap-6 text-sm">
+      <a href="#about" data-i18n="nav_about" class="hover:text-accent transition">Tentang</a>
+      <a href="#portfolio" data-i18n="nav_portfolio" class="hover:text-accent transition">Portfolio</a>
+      <a href="#blog" data-i18n="nav_blog" class="hover:text-accent transition">Blog</a>
+      <a href="#contact" data-i18n="nav_contact" class="hover:text-accent transition">Kontak</a>
+      <button id="langToggle" class="glass px-3 py-1.5 rounded-lg font-mono text-accent hover:border-accent transition">
+        ID <span class="text-gray-500">/ EN</span>
+      </button>
+    </div>
+    <button id="menuBtn" class="md:hidden text-accent">☰</button>
+  </div>
+  <div id="mobileMenu" class="hidden md:hidden px-6 pb-4 flex flex-col gap-3 text-sm">
+    <a href="#about" data-i18n="nav_about">Tentang</a>
+    <a href="#portfolio" data-i18n="nav_portfolio">Portfolio</a>
+    <a href="#blog" data-i18n="nav_blog">Blog</a>
+    <a href="#contact" data-i18n="nav_contact">Kontak</a>
+    <button id="langToggleMobile" class="glass px-3 py-1.5 rounded-lg font-mono text-accent w-fit">ID / EN</button>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section id="hero" class="relative z-10 min-h-screen flex items-center justify-center px-6 pt-24">
+  <div class="max-w-4xl text-center">
+    <div class="float inline-block mb-8">
+      <!-- GANTI: foto profil — ganti div ini dengan <img src="foto.jpg" class="w-32 h-32 rounded-full object-cover"> -->
+      <div class="w-32 h-32 rounded-full glass flex items-center justify-center text-4xl font-bold text-gradient mx-auto">JF</div>
+    </div>
+    <p class="font-mono text-accent mb-2">// Hello World, saya</p>
+    <h1 class="text-4xl md:text-6xl font-extrabold mb-4">
+      <span class="text-gradient">Jimmy Faber</span>
+    </h1>
+    <h2 class="text-xl md:text-2xl font-semibold mb-6 typing" id="typewriter"></h2>
+    <p class="text-gray-400 max-w-2xl mx-auto mb-8" data-i18n="hero_desc">
+      Membantu bisnis mengadopsi kecerdasan buatan — dari ide, integrasi, hingga sistem produksi yang berdampak nyata.
+    </p>
+    <div class="flex flex-wrap gap-4 justify-center">
+      <a href="#portfolio" class="btn-glow px-6 py-3 rounded-xl font-semibold" data-i18n="hero_cta1">Lihat Portfolio</a>
+      <a hrefcontact" class="glass glass-hover px-6 py-3 rounded-xl font-semibold" data-i18n="hero_cta2">Hubungi Saya</a>
+    </div>
+    <!-- Neural network decoration -->
+    <svg class="neural mx-auto mt-12 opacity-60" width="300" height="80" viewBox="0 0 300 80">
+      <line x1="20" y1="40" x2="100" y2="15"/><line x1="20" y1="40" x2="100" y2="65"/>
+      <line x1="100" y1="15" x2="190" y2="40"/><line x1="100" y1="65" x2="190" y2="40"/>
+      <line x1="190" y1="40" x2="280" y2="20"/><line x1="190" y1="40" x2="280" y2="60"/>
+      <circle cx="20" cy="40" r="5"/><circle cx="100" cy="15" r="5"/><circle cx="100" cy="65" r="5"/>
+      <circle cx="190" cy="40" r="5"/><circle cx="280" cy="20" r="5"/><circle cx="280" cy="60" r="5"/>
+    </svg>
+  </div>
+</section>
+
+<!-- ============ ABOUT ============ -->
+<section id="about" class="relative z-10 py-24 px-6">
+  <div class="max-w-6xl mx-auto reveal">
+    <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center">
+      <span class="text-gradient" data-i18n="about_title">Tentang Saya</span>
+    </h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="glass glass-hover rounded-2xl p-6 md:col-span-2">
+        <h3 class="font-mono text-accent mb-3">$ whoami</h3>
+        <p class="text-gray-300 leading-relaxed" data-i18n="about_p1">
+          Saya Jimmy Faber, seorang AI Implementator yang berfokus pada penerapan teknologi AI
+          ke dalam sistem bisnis nyata. Saya percaya AI bukan sekadar tren, melainkan alat
+          yang mampu mentransformasi cara bisnis beroperasi — lebih cepat, lebih cerdas, lebih efisien.
+        </p>
+        <p class="text-gray-300 leading-relaxed mt-4" data-i18n="about_p2">
+          Dengan latar belakang di bidang IT, saya menangani seluruh siklus implementasi:
+          analisis kebutuhan, pengembangan, integrasi API/model, hingga deployment.
+        </p>
+      </div>
+      <div class="glass glass-hover rounded-2xl p-6">
+        <h3 class="font-mono text-accent2 mb-4">$ tech_stack</h3>
+        <!-- GANTI: sesuaikan skill dengan kemampuan Anda -->
+        <div class="flex flex-wrap gap-2 text-sm">
+          <span class="glass px-3 py-1 rounded-lg">Python</span>
+          <span class="glass px-3 py-1 rounded-lg">LLM / OpenAI API</span>
+          <span class="glass px-3 py-1 rounded-lg">LangChain</span>
+          <span class="glass px-3 py-1 rounded-lg">JavaScript</span>
+          <span class="glass px-3 py-1 rounded-lg">API Integration</span>
+          <span class="glass px-3 py-1 rounded-lg">Automation</span>
+          <span class="glass px-3 py-1 rounded-lg">Git</span>
+          <span class="glass px-3 py-1 rounded-lg">Tailwind CSS</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PORTFOLIO (dinamis dari GitHub) ============ -->
+<section id="portfolio" class="relative z-10 py-24 px-6">
+  <div class="max-w-6xl mx-auto reveal">
+    <h2 class="text-3xl md:text-4xl font-bold mb-3 text-center">
+      <span class="text-gradient" data-i18n="port_title">Portfolio</span>
+    </h2>
+    <p class="text-center text-gray-400 mb-10 font-mono text-sm">
+      // <span data-i18n="port_sub">Data otomatis dari GitHub — selalu terbaru</span>
+    </p>
+    <div id="repoGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Skeleton loading -->
+      <div class="glass rounded-2xl p-6 animate-pulse h-44"></div>
+      <div class="glass rounded-2xl p-6 animate-pulse h-44"></div>
+      <div class="glass rounded-2xl p-6 animate-pulse h-44"></div>
+      <div class="glass rounded-2xl p-6 animate-pulse h-44"></div>
+      <div class="glass rounded-2xl p-6 animate-pulse h-44"></div>
+      <div class="glass rounded-2xl p-6 animate-pulse h-44"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BLOG ============ -->
+<section id="blog" class="relative z-10 py-24 px-6">
+  <div class="max-w-6xl mx-auto reveal">
+    <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center">
+      <span class="text-gradient" data-i18n="blog_title">Blog & Writings</span>
+    </h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- GANTI: tulis blog Anda di sini, duplikat kartu & isi artikel via file .html terpisah -->
+      <a href="#" class="glass glass-hover rounded-2xl p-6 block">
+        <span class="font-mono text-xs text-accent">AI</span>
+        <h3 class="font-bold mt-2 mb-2">Judul Artikel Placeholder 1</h3>
+        <p class="text-sm text-gray-400">Ringkasan singkat artikel tentang implementasi AI di bisnis...</p>
+      </a>
+      <a href="#" class="glass glass-hover rounded-2xl p-6 block">
+        <span class="font-mono text-xs text-accent2">Automation</span>
+        <h3 class="font-bold mt-2 mb-2">Judul Artikel Placeholder 2</h3>
+        <p class="text-sm text-gray-400">Ringkasan singkat artikel tentang otomasi workflow...</p>
+      </a>
+      <a href="#" class="glass glass-hover rounded-2xl p-6 block">
+        <span class="font-mono text-xs text-accent">Tech</span>
+        <h3 class="font-bold mt-2 mb-2">Judul Artikel Placeholder 3</h3>
+        <p class="text-sm text-gray-400">Ringkasan singkat artikel tentang deployment & hosting...</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ KONTAK ============ -->
+<section id="contact" class="relative z-10 py-24 px-6">
+  <div class="max-w-4xl mx-auto reveal text-center">
+    <h2 class="text-3xl md:text-4xl font-bold mb-10">
+      <span class="text-gradient" data-i18n="contact_title">Hubungi Saya</span>
+    </h2>
+
+    <!-- Tombol link langsung -->
+    <div class="flex flex-wrap gap-4 justify-center mb-12">
+      <!-- GANTI: isi link asli di bawah ini -->
+      <a href="mailto:EMAIL_ANDA@example.com" class="glass glass-hover px-6 py-3 rounded-xl flex items-center gap-2">📧 <span data-i18n="c_email">Email</span></a>
+      <a href="https://t.me/USERNAME_BOT" target="_blank" class="glass glass-hover px-6 py-3 rounded-xl flex items-center gap-2">🤖 Telegram Bot</a>
+      <a href="https://instagram.com/USERNAME_IG" target="_blank" class="glass glass-hover px-6 py-3 rounded-xl flex items-center gap-2">📸 Instagram</a>
+      <a href="https://linkedin.com/in/USERNAME_LINKEDIN" target="_blank" class="glass glass-hover px-6 py-3 rounded-xl flex items-center gap-2">💼 LinkedIn</a>
+      <a href="https://github.com/Faber-Aritonang" target="_blank" class="glass glass-hover px-6 py-3 rounded-xl flex items-center gap-2">🐙 GitHub</a>
+    </div>
+
+    <!-- Form kontak via Formspree -->
+    <!-- GANTI: daftar gratis di formspree.io, lalu ganti XXXXXXXX dengan ID form Anda -->
+    <form action="https://formspree.io/f/XXXXXXXX" method="POST"
+      class="glass rounded-2xl p-8 text-left space-y-4 max-w-xl mx-auto">
+      <input type="text" name="name" required placeholder="Nama" data-i18n-ph="f_name"
+        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-accent transition">
+      <input type="email" name="email" required placeholder="Email" data-i18n-ph="f_email"
+        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-accent transition">
+      <textarea name="message" required rows="5" placeholder="Pesan..." data-i18n-ph="f_msg"
+        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-accent transition"></textarea>
+      <button type="submit" class="btn-glow w-full py-3 rounded-xl font-semibold" data-i18n="f_send">
+        Kirim Pesan 🚀
+      </button>
+    </form>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="relative z-10 border-t border-white/5 py-8 text-center text-sm text-gray-500">
+  <p>© 2025 Jimmy Faber — <span class="font-mono text-accent">Implementator AI to Your Business System</span></p>
+  <p class="mt-1 font-mono text-xs">Deployed on <a href="https://vercel.com" class="text-accent2 hover:underline">Vercel</a> · Powered by GitHub</p>
+</footer>
+
+<!-- ============ JAVASCRIPT ============ -->
+<script>
+/* ========== MULTI-BAHASA ID/EN ========== */
+const translations = {
+  en: {
+    nav_about: "About", nav_portfolio: "Portfolio", nav_blog: "Blog", nav_contact: "Contact",
+    hero_desc: "Helping businesses adopt artificial intelligence — from idea, integration, to production systems with real impact.",
+    hero_cta1: "View Portfolio", hero_cta2: "Contact Me",
+    about_title: "About Me",
+    about_p1: "I'm Jimmy Faber, an AI Implementator focused on applying AI technology to real business systems. I believe AI is not just a trend, but a tool that can transform how businesses operate — faster, smarter, more efficient.",
+    about_p2: "With an IT background, I handle the full implementation cycle: requirements analysis, development, API/model integration, to deployment.",
+    port_title: "Portfolio", port_sub: "Auto-fetched from GitHub — always up to date",
+    blog_title: "Blog & Writings",
+    contact_title: "Contact Me", c_email: "Email",
+    f_name: "Name", f_email: "Email", f_msg: "Message...", f_send: "Send Message 🚀",
+    typewriter: ["Implementator AI to Your Business System", "AI • Data • Automation"]
+  },
+  id: {
+    nav_about: "Tentang", nav_portfolio: "Portfolio", nav_blog: "Blog", nav_contact: "Kontak",
+    hero_desc: "Membantu bisnis mengadopsi kecerdasan buatan — dari ide, integrasi, hingga sistem produksi yang berdampak nyata.",
+    hero_cta1: "Lihat Portfolio", hero_cta2: "Hubungi Saya",
+    about_title: "Tentang Saya",
+    about_p1: "Saya Jimmy Faber, seorang AI Implementator yang berfokus pada penerapan teknologi AI ke dalam sistem bisnis nyata. Saya percaya AI bukan sekadar tren, melainkan alat yang mampu mentransformasi cara bisnis beroperasi — lebih cepat, lebih cerdas, lebih efisien.",
+    about_p2: "Dengan latar belakang di bidang IT, saya menangani seluruh siklus implementasi: analisis kebutuhan, pengembangan, integrasi API/model, hingga deployment.",
+    port_title: "Portfolio", port_sub: "Data otomatis dari GitHub — selalu terbaru",
+    blog_title: "Blog & Writings",
+    contact_title: "Hubungi Saya", c_email: "Email",
+    f_name: "Nama", f_email: "Email", f_msg: "Pesan...", f_send: "Kirim Pesan 🚀",
+    typewriter: ["Implementator AI to Your Business System", "AI • Data • Automation"]
+  }
+};
+let currentLang = 'id';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = translations[lang][el.dataset.i18n] || el.textContent;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.placeholder = translations[lang][el.dataset.i18nPh] || el.placeholder;
+  });
+  startTypewriter(); // restart typewriter with new language
+}
+document.getElementById('langToggle').onclick = () => setLang(currentLang === 'id' ? 'en' : 'id');
+document.getElementById('langToggleMobile').onclick = () => setLang(currentLang === 'id' ? 'en' : 'id');
+
+/* ========== TYPEWRITER ========== */
+let twIndex = 0, charIndex = 0, deleting = false, twTimer;
+function startTypewriter() {
+  clearTimeout(twTimer);
+  const el = document.getElementById('typewriter');
+  const words = translations[currentLang].typewriter;
+  const word = words[twIndex % words.length];
+  el.textContent = word.substring(0, charIndex);
+  if (!deleting && charIndex < word.length) { charIndex++; twTimer = setTimeout(startTypewriter, 60); }
+  else if (!deleting) { deleting = true; twTimer = setTimeout(startTypewriter, 2000); }
+  else if (charIndex > 0) { charIndex--; twTimer = setTimeout(startTypewriter, 30); }
+  else { deleting = false; twIndex++; twTimer = setTimeout(startTypewriter, 400); }
+}
+startTypewriter();
+
+/* ========== GITHUB API — fetch repos ========== */
+const USERNAME = 'Faber-Aritonang'; // GANTI: username GitHub Anda
+
+async function loadRepos() {
+  const grid = document.getElementById('repoGrid');
+  try {
+    // Ambil 15 repo, urut dari yang terakhir diupdate
+    const res = await fetch(`https://api.github.com/users/${USERNAME}/repos?sort=updated&per_page=15`);
+    if (!res.ok) throw new Error('API error');
+    const repos = await res.json();
+
+    grid.innerHTML = repos.map(repo => `
+      <div class="glass glass-hover rounded-2xl p-6 flex flex-col">
+        <div class="flex items-start justify-between mb-2">
+          <span class="font-mono text-accent2 text-xs">📁 ${repo.language || 'Code'}</span>
+          <span class="text-gray-500 text-xs flex items-center gap-1">⭐ ${repo.stargazers_count}</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2 truncate">
+          <a href="repo.htmlurl"target="blank"class="hover:text−accenttransition">{repo.html_url}" target="_blank" class="hover:text-accent transition">repo.htmlu​rl"target="b​lank"class="hover:text−accenttransition">{repo.name}</a>
+        </h3>
+        <p class="text-sm text-gray-400 flex-1">${repo.description || 'No description provided.'}</p>
+        <div class="flex gap-3 mt-4 text-sm">
+          <a href="${repo.html_url}" target="_blank"
+             class="text-accent hover:underline flex items-center gap-1">🔗 Code</a>
+          {repo.homepage ? `<a href="{repo.homepage}" target="_blank"
+             class="text-purple-400 hover:underline flex items-center gap-1">🚀 Demo</a>` : ''}
+        </div>
+      </div>
+    `).join('');
+  } catch (err) {
+    grid.innerHTML = `
+      <div class="glass rounded-2xl p-8 col-span-full text-center text-gray-400">
+        ⚠️ Gagal memuat repositori. <a href="https://github.com/${USERNAME}" class="text-accent hover:underline">Kunjungi GitHub saya →</a>
+      </div>`;
+  }
+}
+loadRepos();
+
+/* ========== REVEAL ON SCROLL ========== */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+/* ========== MOBILE MENU ========== */
+const menuBtn = document.getElementById('menuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+menuBtn.onclick = () => mobileMenu.classList.toggle('hidden');
+mobileMenu.querySelectorAll('a').forEach(a => a.onclick = () => mobileMenu.classList.add('hidden'));
+</script>
+</body>
+</html>
