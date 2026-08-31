@@ -563,7 +563,7 @@
     id:{nav_about:"Tentang",nav_portfolio:"Portfolio",nav_skills:"Skills",nav_blog:"Blog",nav_contact:"Kontak",hero_desc:"Membantu bisnis mengadopsi kecerdasan buatan — dari ide, integrasi, hingga sistem produksi yang berdampak nyata.",hero_cta1:"Lihat Portfolio",hero_cta2:"Hubungi Saya",about_title:"Tentang Saya",about_p1:"Saya Jimmy Faber, seorang AI Implementator yang berfokus pada penerapan teknologi AI ke dalam sistem bisnis nyata. Saya percaya AI bukan sekadar tren, melainkan alat yang mampu mentransformasi cara bisnis beroperasi — lebih cepat, lebih cerdas, lebih efisien.",about_p2:"Dengan latar belakang di bidang IT, saya menangani seluruh siklus implementasi: analisis kebutuhan, pengembangan, integrasi API/model, hingga deployment. Tujuan saya adalah memastikan setiap solusi AI memberikan ROI yang terukur dan sustainable.",skills_title:"Keahlian & Teknologi",stat_projects:"AI Projects",stat_years:"Tahun Experience",stat_stars:"GitHub Stars",port_title:"Portfolio",port_sub:"Data otomatis dari GitHub — selalu terbaru",filter_all:"Semua",filter_python:"Python",filter_js:"JavaScript",filter_ai:"AI/ML",blog_title:"Blog & Artikel",contact_title:"Hubungi Saya",c_email:"Email",f_name:"Nama Lengkap",f_email:"Email",f_msg:"Pesan Anda...",f_send:"Kirim Pesan 🚀",typewriter:["Implementator AI to Your Business System","AI • Data • Automation"]}
   };
   var lang=localStorage.getItem('lang')||'id';
-  function setLang(l){lang=l;localStorage.setItem('lang',l);document.querySelectorAll('[data-i18n]').forEach(function(e){e.textContent=T[l][e.dataset.i18n]||e.textContent;});document.querySelectorAll('[data-i18n-ph]').forEach(function(e){e.placeholder=T[l][e.dataset.i18nPh]||e.placeholder;});startTW();}
+  function setLang(l){if(!T[l])l='id';lang=l;localStorage.setItem('lang',l);var t=T[l];document.querySelectorAll('[data-i18n]').forEach(function(e){if(t[e.dataset.i18n])e.textContent=t[e.dataset.i18n];});document.querySelectorAll('[data-i18n-ph]').forEach(function(e){if(t[e.dataset.i18nPh])e.placeholder=t[e.dataset.i18nPh];});startTW();}
   var lt=document.getElementById('langToggle'),ltm=document.getElementById('langToggleMobile');
   if(lt)lt.onclick=function(){setLang(lang==='id'?'en':'id');};
   if(ltm)ltm.onclick=function(){setLang(lang==='id'?'en':'id');};
@@ -571,7 +571,7 @@
 
   /* === TYPEWRITER === */
   var twI=0,twC=0,twD=false,twT;
-  function startTW(){clearTimeout(twT);var el=document.getElementById('typewriter');if(!el)return;var w=T[lang].typewriter;var word=w[twI%w.length];el.textContent=word.substring(0,twC);if(!twD&&twC<word.length){twC++;twT=setTimeout(startTW,60);}else if(!twD){twD=true;twT=setTimeout(startTW,2000);}else if(twC>0){twC--;twT=setTimeout(startTW,30);}else{twD=false;twI++;twT=setTimeout(startTW,400);}}
+  function startTW(){clearTimeout(twT);var el=document.getElementById('typewriter');if(!el)return;if(!T[lang])lang='id';var w=T[lang].typewriter;if(!w||!w.length){w=T.id.typewriter;}twI=twI%w.length;var word=w[twI];if(!word){twI=0;twC=0;twD=false;return;}el.textContent=word.substring(0,twC);if(!twD&&twC<word.length){twC++;twT=setTimeout(startTW,60);}else if(!twD){twD=true;twT=setTimeout(startTW,2000);}else if(twC>0){twC--;twT=setTimeout(startTW,30);}else{twD=false;twI++;twT=setTimeout(startTW,400);}}
   startTW();
 
   /* === GITHUB REPOS === */
