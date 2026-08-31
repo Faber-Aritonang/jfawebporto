@@ -923,7 +923,7 @@ async function loadRepos() {
 
 function renderRepos(repos) {
   const grid = document.getElementById('repoGrid');
-  grid.innerHTML = repos.map(repo => {
+  grid.innerHTML = repos.map((repo, index) => {
     const lang = repo.language ? repo.language.toLowerCase() : 'code';
     const hasAI = repo.topics?.some(t => ['ai', 'ml', 'machine-learning', 'deep-learning', 'nlp', 'llm'].includes(t.toLowerCase()));
     const category = hasAI ? 'ai' : lang;
@@ -932,7 +932,7 @@ function renderRepos(repos) {
     return `
       <div class="glass glass-hover project-card rounded-2xl p-6 flex flex-col" 
            data-category="${category}"
-           onclick="openProjectModal(${JSON.stringify(repo).replace(/"/g, '&quot;')})">
+           data-repo-index="${index}">
         <div class="flex items-start justify-between mb-2">
           <span class="font-mono text-accent2 text-xs">📁 ${repo.language || 'Code'}</span>
           <span class="text-gray-500 text-xs flex items-center gap-1">⭐ ${repo.stargazers_count}</span>
@@ -956,6 +956,14 @@ function renderRepos(repos) {
       </div>
     `;
   }).join('');
+  
+  // Attach click handlers using event delegation
+  grid.querySelectorAll('.project-card[data-repo-index]').forEach(card => {
+    card.addEventListener('click', () => {
+      const idx = parseInt(card.getAttribute('data-repo-index'));
+      if (allRepos[idx]) openProjectModal(allRepos[idx]);
+    });
+  });
 }
 
 /* ===========================
@@ -1195,6 +1203,16 @@ document.querySelectorAll('.tag-btn').forEach(btn => {
       }
     });
   });
+});
+
+// Project card click delegation (works for dynamically loaded cards)
+document.getElementById('repoGrid').addEventListener('click', (e) => {
+  const card = e.target.closest('.project-card[data-repo-index]');
+  if (!card) return;
+  // Don't open modal if a link was clicked
+  if (e.target.closest('a')) return;
+  const idx = parseInt(card.getAttribute('data-repo-index'));
+  if (allRepos[idx]) openProjectModal(allRepos[idx]);
 });
 
 /* ===========================
