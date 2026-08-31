@@ -201,14 +201,6 @@
       max-height: 80vh; overflow-y: auto;
     }
     
-    .activity-cell {
-      width: 12px; height: 12px; border-radius: 2px;
-    }
-    .activity-cell:hover {
-      outline: 2px solid rgba(34,211,238,.5);
-      outline-offset: 1px;
-    }
-    
     .tech-icon { transition: all .3s ease; cursor: default; }
     .tech-icon:hover {
       transform: translateY(-4px) scale(1.1);
@@ -371,26 +363,6 @@
   </div>
 </section>
 
-<!-- ACTIVITY -->
-<section id="activity" class="relative z-10 py-24 px-6">
-  <div class="max-w-6xl mx-auto">
-    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center reveal"><span class="text-gradient">GitHub Activity</span></h2>
-    <p class="text-gray-400 text-center mb-8 reveal">Kontribusi 6 bulan terakhir</p>
-    <div class="glass rounded-2xl p-6 overflow-x-auto reveal">
-      <div class="flex justify-center"><div id="activityGraph" class="flex gap-[3px]"></div></div>
-      <div class="flex justify-between mt-4 text-xs text-gray-500 max-w-[600px] mx-auto"><span id="activityStart">-</span><span id="activityEnd">-</span></div>
-      <div class="flex items-center justify-end gap-2 mt-3 text-xs text-gray-500">
-        <span>Less</span>
-        <div class="activity-cell" style="background:rgba(34,211,238,.1)"></div>
-        <div class="activity-cell" style="background:rgba(34,211,238,.3)"></div>
-        <div class="activity-cell" style="background:rgba(34,211,238,.6)"></div>
-        <div class="activity-cell" style="background:#22d3ee"></div>
-        <span>More</span>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- BLOG -->
 <section id="blog" class="relative z-10 py-24 px-6">
   <div class="max-w-6xl mx-auto">
@@ -398,9 +370,6 @@
     <div class="grid md:grid-cols-2 gap-6 mb-10 reveal" id="blogGrid">
       <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
       <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
-    </div>
-    <div class="text-center reveal">
-      <a href="https://github.com/Faber-Aritonang" target="_blank" rel="noopener noreferrer" class="text-accent hover:text-accent2 font-semibold transition">Lihat semua di GitHub →</a>
     </div>
   </div>
 </section>
@@ -593,7 +562,7 @@
       var ts=0;repos.forEach(function(r){ts+=r.stargazers_count;});
       var se=document.getElementById('stat-stars'),pe=document.getElementById('stat-projects');
       if(se)se.textContent=ts+'+';if(pe)pe.textContent=repos.length+'+';
-      renderRepos(repos);renderTechGrid(repos);renderBlog(repos);loadActivity();
+      renderRepos(repos);renderTechGrid(repos);renderBlog(repos);
     })
     .catch(function(e){
       console.error('[Portfolio] Error:', e);
@@ -674,37 +643,6 @@
         +'<div class="flex gap-2 flex-wrap mt-auto">'+(r.language?'<span class="text-xs bg-white/10 px-2 py-1 rounded">'+r.language+'</span>':'')+'<span class="text-xs bg-white/10 px-2 py-1 rounded">⭐ '+r.stargazers_count+'</span></div>'
       +'</a>';
     }).join('');
-  }
-
-  /* === ACTIVITY === */
-  function loadActivity(){
-    var c=document.getElementById('activityGraph');if(!c)return;
-    console.log('[Activity] loadActivity called');
-    fetch('https://api.github.com/users/'+USERNAME+'/events/public?per_page=100')
-    .then(function(res){
-      console.log('[Activity] fetch status:', res.status);
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      return res.json();
-    })
-    .then(function(ev){
-      console.log('[Activity] events loaded:', ev.length);
-      var weeks=26,today=new Date(),start=new Date(today);start.setDate(start.getDate()-weeks*7);
-      var dc={};ev.forEach(function(e){if(e.type==='PushEvent'||e.type==='CreateEvent'){var d=e.created_at.substring(0,10);dc[d]=(dc[d]||0)+1;}});
-      var html='',cur=new Date(start);cur.setDate(cur.getDate()-cur.getDay());
-      for(var w=0;w<weeks+1;w++){for(var d=0;d<7;d++){
-        var ds=cur.toISOString().substring(0,10),cnt=dc[ds]||0,op=cnt===0?.1:cnt<=2?.3:cnt<=5?.6:1;
-        html+='<div class="activity-cell" style="background:'+(cur>today?'rgba(255,255,255,.03)':'rgba(34,211,238,'+op+')')+';" title="'+ds+': '+cnt+'"></div>';
-        cur.setDate(cur.getDate()+1);
-      }}
-      c.innerHTML=html;
-      var se=document.getElementById('activityStart'),ee=document.getElementById('activityEnd');
-      if(se)se.textContent=start.toLocaleDateString('id-ID',{month:'short',year:'numeric'});
-      if(ee)ee.textContent=today.toLocaleDateString('id-ID',{month:'short',year:'numeric'});
-    })
-    .catch(function(e){
-      console.error('[Activity] Error:', e);
-      c.innerHTML='<p class="text-gray-400 text-sm text-center">⚠️ Gagal memuat activity: '+e.message+'</p>';
-    });
   }
 
   /* === FILTER === */
