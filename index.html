@@ -578,17 +578,27 @@
   var allRepos=[];
   var TECH_ICONS={Python:'🐍',JavaScript:'⚡',HTML:'🌐',CSS:'🎨',TypeScript:'📘','Jupyter Notebook':'📊',Shell:'💻',Go:'🔵',Rust:'🦀',Java:'☕',PHP:'🐘',Ruby:'💎','C++':'⚙️',C:'🔧',Vue:'💚',Dart:'🎯'};
 
-  async function loadRepos(){
+  function loadRepos(){
     var grid=document.getElementById('repoGrid');
-    try{
-      var res=await fetch('https://api.github.com/users/'+USERNAME+'/repos?sort=updated&per_page=30');
-      if(!res.ok)throw new Error('API error');
-      allRepos=await res.json();
-      var ts=allRepos.reduce(function(s,r){return s+r.stargazers_count;},0);
+    console.log('[Portfolio] loadRepos called, grid:', !!grid);
+    fetch('https://api.github.com/users/'+USERNAME+'/repos?sort=updated&per_page=30')
+    .then(function(res){
+      console.log('[Portfolio] fetch status:', res.status);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      return res.json();
+    })
+    .then(function(repos){
+      console.log('[Portfolio] repos loaded:', repos.length);
+      allRepos=repos;
+      var ts=0;repos.forEach(function(r){ts+=r.stargazers_count;});
       var se=document.getElementById('stat-stars'),pe=document.getElementById('stat-projects');
-      if(se)se.textContent=ts+'+';if(pe)pe.textContent=allRepos.length+'+';
-      renderRepos(allRepos);renderTechGrid(allRepos);renderBlog(allRepos);loadActivity();
-    }catch(e){console.error(e);if(grid)grid.innerHTML='<div class="glass rounded-2xl p-8 col-span-full text-center text-gray-400">⚠️ Failed to load. <a href="https://github.com/'+USERNAME+'" target="_blank" class="text-accent hover:underline">GitHub →</a></div>';}
+      if(se)se.textContent=ts+'+';if(pe)pe.textContent=repos.length+'+';
+      renderRepos(repos);renderTechGrid(repos);renderBlog(repos);loadActivity();
+    })
+    .catch(function(e){
+      console.error('[Portfolio] Error:', e);
+      if(grid)grid.innerHTML='<div class="glass rounded-2xl p-8 col-span-full text-center text-gray-400">⚠️ Gagal load repos: '+e.message+'. <a href="https://github.com/'+USERNAME+'" target="_blank" class="text-accent hover:underline">GitHub →</a></div>';
+    });
   }
 
   function renderRepos(repos){
@@ -667,11 +677,17 @@
   }
 
   /* === ACTIVITY === */
-  async function loadActivity(){
+  function loadActivity(){
     var c=document.getElementById('activityGraph');if(!c)return;
-    try{
-      var res=await fetch('https://api.github.com/users/'+USERNAME+'/events/public?per_page=100');
-      if(!res.ok)throw 0;var ev=await res.json();
+    console.log('[Activity] loadActivity called');
+    fetch('https://api.github.com/users/'+USERNAME+'/events/public?per_page=100')
+    .then(function(res){
+      console.log('[Activity] fetch status:', res.status);
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      return res.json();
+    })
+    .then(function(ev){
+      console.log('[Activity] events loaded:', ev.length);
       var weeks=26,today=new Date(),start=new Date(today);start.setDate(start.getDate()-weeks*7);
       var dc={};ev.forEach(function(e){if(e.type==='PushEvent'||e.type==='CreateEvent'){var d=e.created_at.substring(0,10);dc[d]=(dc[d]||0)+1;}});
       var html='',cur=new Date(start);cur.setDate(cur.getDate()-cur.getDay());
@@ -684,7 +700,11 @@
       var se=document.getElementById('activityStart'),ee=document.getElementById('activityEnd');
       if(se)se.textContent=start.toLocaleDateString('id-ID',{month:'short',year:'numeric'});
       if(ee)ee.textContent=today.toLocaleDateString('id-ID',{month:'short',year:'numeric'});
-    }catch(e){c.innerHTML='<p class="text-gray-400 text-sm text-center">⚠️ Gagal memuat</p>';}
+    })
+    .catch(function(e){
+      console.error('[Activity] Error:', e);
+      c.innerHTML='<p class="text-gray-400 text-sm text-center">⚠️ Gagal memuat activity: '+e.message+'</p>';
+    });
   }
 
   /* === FILTER === */
@@ -714,6 +734,7 @@
     if(mb&&mm){mb.onclick=function(){mm.classList.toggle('hidden');};mm.querySelectorAll('a').forEach(function(a){a.onclick=function(){mm.classList.add('hidden');};});}
   }catch(e){}
 
+  console.log('[App] Script loaded, calling loadRepos...');
   loadRepos();
 })();
 </script>
