@@ -677,6 +677,14 @@
     g.innerHTML=s.map(function(e){return'<div class="tech-icon glass rounded-xl px-4 py-3 flex items-center gap-2 text-sm" title="'+e[1]+' repos"><span class="text-lg">'+(TECH_ICONS[e[0]]||'📦')+'</span><span class="font-medium">'+e[0]+'</span><span class="text-xs text-gray-500">('+e[1]+')</span></div>';}).join('');
   }
 
+  /* === BLOG HELPER === */
+  function blogCard(href, extra) {
+    return '<a href="' + href + '"' + extra + ' class="glass glass-hover rounded-2xl p-6 flex flex-col block">';
+  }
+  function blogMeta(catClass, catName, date) {
+    return '<div class="flex justify-between items-start mb-3"><span class="text-xs font-mono px-2 py-0.5 rounded ' + catClass + '">' + catName + '</span><span class="text-gray-500 text-xs">' + date + '</span></div>';
+  }
+
   /* === BLOG: BERITA INFO (from API) === */
   function loadBlogNews() {
     var grid = document.getElementById('blogNewsGrid');
@@ -686,31 +694,26 @@
     .then(function(d) {
       var articles = d.articles || [];
       if (!articles.length) {
-        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">📰 Berita AI akan otomatis diupdate 2x sehari.</div>';
+        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">Berita AI akan otomatis diupdate 2x sehari.</div>';
         return;
       }
+      var q = function(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
       grid.innerHTML = articles.map(function(a) {
-        var scoreColor = (a.gemini_score||0) >= 70 ? 'text-green-400' : (a.gemini_score||0) >= 50 ? 'text-yellow-400' : 'text-gray-400';
-        var catColors = { 'ai-news': 'bg-cyan-500/20 text-cyan-400', 'llm': 'bg-purple-500/20 text-purple-400', 'computer-vision': 'bg-pink-500/20 text-pink-400', 'ai-business': 'bg-green-500/20 text-green-400', 'open-source': 'bg-orange-500/20 text-orange-400', 'regulation': 'bg-red-500/20 text-red-400' };
-        var catClass = catColors[a.category] || 'bg-cyan-500/20 text-cyan-400';
-        var timeAgo = function() { var s = Math.floor((new Date() - new Date(a.published_at || a.fetched_at)) / 1000); var iv = [{l:'hari',s:86400},{l:'jam',s:3600},{l:'menit',s:60}]; for(var j=0;j<iv.length;j++){var c=Math.floor(s/iv[j].s);if(c>0)return c+' '+iv[j].l+' lalu';} return 'baru saja'; };
-        return '<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer" class="glass glass-hover rounded-2xl p-6 flex flex-col block">
-          <div class="flex justify-between items-start mb-3">
-            <span class="text-xs font-mono px-2 py-0.5 rounded ' + catClass + '">' + esc(a.category || 'ai-news') + '</span>
-            <span class="text-gray-500 text-xs">' + timeAgo() + '</span>
-          </div>
-          <h3 class="text-lg font-bold mb-2 leading-tight hover:text-accent transition line-clamp-2">' + esc(a.title) + '</h3>
-          <p class="text-sm text-gray-400 flex-1 mb-3 line-clamp-3">' + esc(a.gemini_summary || a.summary || '') + '</p>
-          <div class="flex items-center justify-between mt-auto">
-            <span class="text-xs text-gray-500">' + esc(a.source || '') + '</span>
-            <span class="text-xs ' + scoreColor + '">⭐ ' + (a.gemini_score || '?') + '</span>
-          </div>
-        </a>';
+        var sc = (a.gemini_score||0) >= 70 ? 'text-green-400' : (a.gemini_score||0) >= 50 ? 'text-yellow-400' : 'text-gray-400';
+        var cc = { 'ai-news':'bg-cyan-500/20 text-cyan-400','llm':'bg-purple-500/20 text-purple-400','computer-vision':'bg-pink-500/20 text-pink-400','ai-business':'bg-green-500/20 text-green-400','open-source':'bg-orange-500/20 text-orange-400','regulation':'bg-red-500/20 text-red-400' };
+        var cls = cc[a.category] || 'bg-cyan-500/20 text-cyan-400';
+        var ta = function(){var s=Math.floor((new Date()-new Date(a.published_at||a.fetched_at))/1000);var iv=[{l:'hari',s:86400},{l:'jam',s:3600},{l:'menit',s:60}];for(var j=0;j<iv.length;j++){var c=Math.floor(s/iv[j].s);if(c>0)return c+' '+iv[j].l+' lalu';}return 'baru saja';}; var t=ta();
+        return blogCard(q(a.url),' target="_blank" rel="noopener noreferrer"')
+          + blogMeta(cls,q(a.category||'ai-news'),t)
+          + '<h3 class="text-lg font-bold mb-2 leading-tight hover:text-accent transition line-clamp-2">'+q(a.title)+'</h3>'
+          + '<p class="text-sm text-gray-400 flex-1 mb-3 line-clamp-3">'+q(a.gemini_summary||a.summary||'')+'</p>'
+          + '<div class="flex items-center justify-between mt-auto"><span class="text-xs text-gray-500">'+q(a.source||'')+'</span><span class="text-xs '+sc+'">'+(a.gemini_score||'?')+'</span></div>'
+        + '</a>';
       }).join('');
     })
     .catch(function(e) {
       console.error('[Blog News] Error:', e);
-      grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">⚠️ Gagal memuat berita.</div>';
+      grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">Gagal memuat berita.</div>';
     });
   }
 
@@ -723,27 +726,26 @@
     .then(function(d) {
       var posts = d.posts || [];
       if (!posts.length) {
-        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">\u270D\uFE0F Belum ada tulisan opini. Kunjungi <a href="/admin" class="text-accent hover:underline">Admin Panel</a> untuk mulai menulis.</div>';
+        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">Belum ada tulisan opini. Kunjungi <a href="/admin" class="text-accent hover:underline">Admin Panel</a> untuk mulai menulis.</div>';
         return;
       }
+      var q = function(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+      var cc = { 'opini':'bg-cyan-500/20 text-cyan-400','tutorial':'bg-green-500/20 text-green-400','review':'bg-purple-500/20 text-purple-400','insight':'bg-orange-500/20 text-orange-400' };
       grid.innerHTML = posts.map(function(p) {
-        var catColors = { 'opini': 'bg-cyan-500/20 text-cyan-400', 'tutorial': 'bg-green-500/20 text-green-400', 'review': 'bg-purple-500/20 text-purple-400', 'insight': 'bg-orange-500/20 text-orange-400' };
-        var catClass = catColors[p.category] || 'bg-cyan-500/20 text-cyan-400';
-        var tags = (p.tags || []).map(function(t) { return '<span class="text-xs bg-white/10 px-2 py-0.5 rounded">' + esc(t) + '</span>'; }).join('');
-        return '<a href="/blog.html?slug=' + esc(p.slug) + '" class="glass glass-hover rounded-2xl p-6 flex flex-col block">'
-          + '<div class="flex justify-between items-start mb-3">'
-            + '<span class="text-xs font-mono px-2 py-0.5 rounded ' + catClass + '">' + esc(p.category || 'opini') + '</span>'
-            + '<span class="text-gray-500 text-xs">' + new Date(p.created_at).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric' }) + '</span>'
-          + '</div>'
-          + '<h3 class="text-xl font-bold mb-2 leading-tight hover:text-accent transition">' + esc(p.title) + '</h3>'
-          + '<p class="text-sm text-gray-400 flex-1 mb-3">' + esc(p.excerpt || '') + '</p>'
-          + '<div class="flex gap-1.5 flex-wrap mt-auto">' + tags + '</div>'
+        var cls = cc[p.category] || 'bg-cyan-500/20 text-cyan-400';
+        var tags = (p.tags||[]).map(function(t){return '<span class="text-xs bg-white/10 px-2 py-0.5 rounded">'+q(t)+'</span>';}).join('');
+        var dt = new Date(p.created_at).toLocaleDateString('id-ID',{year:'numeric',month:'short',day:'numeric'});
+        return blogCard('/blog.html?slug='+q(p.slug),'')
+          + blogMeta(cls,q(p.category||'opini'),dt)
+          + '<h3 class="text-xl font-bold mb-2 leading-tight hover:text-accent transition">'+q(p.title)+'</h3>'
+          + '<p class="text-sm text-gray-400 flex-1 mb-3">'+q(p.excerpt||'')+'</p>'
+          + '<div class="flex gap-1.5 flex-wrap mt-auto">'+tags+'</div>'
         + '</a>';
       }).join('');
     })
     .catch(function(e) {
       console.error('[Blog Opini] Error:', e);
-      grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">⚠️ Gagal memuat tulisan.</div>';
+      grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">Gagal memuat tulisan.</div>';
     });
   }
 
@@ -756,23 +758,18 @@
     .then(function(d) {
       var posts = d.posts || [];
       if (!posts.length) {
-        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">🤖 Implementasi AI dalam kehidupan sehari-hari. Kunjungi <a href="/admin" class="text-accent hover:underline">Admin Panel</a> untuk upload materi.</div>';
+        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">Implementasi AI dalam kehidupan sehari-hari. Kunjungi <a href="/admin" class="text-accent hover:underline">Admin Panel</a> untuk upload materi.</div>';
         return;
       }
+      var q = function(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
       grid.innerHTML = posts.map(function(p) {
-        var tags = (p.tags || []).map(function(t) { return '<span class="text-xs bg-white/10 px-2 py-0.5 rounded">' + esc(t) + '</span>'; }).join('');
-        var attCount = p.attachment_count || 0;
-        return '<a href="/blog.html?slug=' + esc(p.slug) + '" target="_blank" class="glass glass-hover rounded-2xl p-6 flex flex-col block">'
-          + '<div class="flex justify-between items-start mb-3">'
-            + '<span class="text-xs font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">🤖 AI & Keseharian</span>'
-            + '<span class="text-gray-500 text-xs">' + new Date(p.created_at).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric' }) + '</span>'
-          + '</div>'
-          + '<h3 class="text-xl font-bold mb-2 leading-tight hover:text-accent transition">' + esc(p.title) + '</h3>'
-          + '<p class="text-sm text-gray-400 flex-1 mb-3">' + esc(p.excerpt || '') + '</p>'
-          + '<div class="flex items-center justify-between mt-auto">'
-            + '<div class="flex gap-1.5 flex-wrap">' + tags + '</div>'
-            + (attCount > 0 ? '<span class="text-xs text-gray-500">📎 ' + attCount + ' file</span>' : '')
-          + '</div>'
+        var tags = (p.tags||[]).map(function(t){return '<span class="text-xs bg-white/10 px-2 py-0.5 rounded">'+q(t)+'</span>';}).join('');
+        var dt = new Date(p.created_at).toLocaleDateString('id-ID',{year:'numeric',month:'short',day:'numeric'});
+        return blogCard('/blog.html?slug='+q(p.slug),' target="_blank"')
+          + blogMeta('bg-purple-500/20 text-purple-400','AI & Keseharian',dt)
+          + '<h3 class="text-xl font-bold mb-2 leading-tight hover:text-accent transition">'+q(p.title)+'</h3>'
+          + '<p class="text-sm text-gray-400 flex-1 mb-3">'+q(p.excerpt||'')+'</p>'
+          + '<div class="flex gap-1.5 flex-wrap mt-auto">'+tags+'</div>'
         + '</a>';
       }).join('');
     })
