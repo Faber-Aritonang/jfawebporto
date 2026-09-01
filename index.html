@@ -501,6 +501,13 @@
     });
   }, 2000);
 
+  /* Fallback: clear loading skeletons after 5s if still showing */
+  setTimeout(function() {
+    document.querySelectorAll('.loading-skeleton').forEach(function(el) {
+      if (el.parentElement) el.style.display = 'none';
+    });
+  }, 5000);
+
   /* === SCROLL PROGRESS === */
   window.addEventListener('scroll', function() {
     var pct = (document.documentElement.scrollTop / (document.documentElement.scrollHeight - document.documentElement.clientHeight)) * 100;

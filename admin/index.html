@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Blog Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    body { background: #0a0e1a; font-family: 'Inter', sans-serif; }
+    .glass { background: rgba(255,255,255,.04); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.08); }
+    .text-gradient { background: linear-gradient(90deg, #22d3ee, #a855f7); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .btn-glow { background: linear-gradient(90deg, #0891b2, #7c3aed); transition: all .3s ease; }
+    .btn-glow:hover { box-shadow: 0 0 20px rgba(34,211,238,.4); transform: translateY(-1px); }
+    .btn-danger { background: linear-gradient(90deg, #dc2626, #991b1b); }
+    textarea { font-family: 'JetBrains Mono', monospace; }
+    .editor-content { min-height: 300px; }
+    .file-drop { border: 2px dashed rgba(255,255,255,.15); transition: all .3s ease; }
+    .file-drop:hover, .file-drop.dragover { border-color: #22d3ee; background: rgba(34,211,238,.05); }
+    .attachment-item { transition: all .3s ease; }
+    .attachment-item:hover { background: rgba(255,255,255,.06); }
+  </style>
+</head>
+<body class="min-h-screen text-gray-200">
+
+<!-- LOGIN -->
+<div id="loginPage" class="min-h-screen flex items-center justify-center px-4">
+  <div class="glass rounded-2xl p-8 w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-2"><span class="text-gradient">Blog Admin</span></h1>
+    <p class="text-gray-400 text-sm mb-6 font-mono">// Jimmy Faber Blog Manager</p>
+    <div class="space-y-4">
+      <input type="password" id="password" placeholder="Admin password"
+        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition font-mono"
+        onkeypress="if(event.key==='Enter')login()">
+      <button onclick="login()" class="btn-glow w-full py-3 rounded-xl font-semibold">Masuk 🔐</button>
+      <p id="loginError" class="text-red-400 text-sm hidden">Password salah</p>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden max-w-6xl mx-auto px-4 py-8">
+  <header class="flex flex-wrap items-center justify-between mb-8 gap-4">
+    <div>
+      <h1 class="text-2xl font-bold"><span class="text-gradient">Blog Manager</span></h1>
+      <p class="text-gray-400 text-sm">Kelola semua rubrik blog</p>
+    </div>
+    <div class="flex flex-wrap gap-2">
+      <button onclick="showTab('posts')" id="tabPosts" class="glass px-3 py-2 rounded-xl text-sm font-semibold text-cyan-400 border-cyan-400/40">✍️ Semua Post</button>
+      <button onclick="showTab('news')" id="tabNews" class="glass px-3 py-2 rounded-xl text-sm font-semibold hover:border-cyan-400 transition">📰 Berita AI</button>
+      <button onclick="showTab('new')" id="tabNew" class="btn-glow px-3 py-2 rounded-xl text-sm font-semibold">+ Tulis Baru</button>
+      <button onclick="logout()" class="glass px-3 py-2 rounded-xl text-sm text-red-400 hover:border-red-400 transition">Logout</button>
+    </div>
+  </header>
+
+  <!-- POSTS LIST -->
+  <div id="postsTab">
+    <div id="postsList" class="space-y-3"></div>
+  </div>
+
+  <!-- NEWS LIST -->
+  <div id="newsTab" class="hidden">
+    <div id="newsList" class="space-y-3"></div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="editorTab" class="hidden">
+    <div class="glass rounded-2xl p-6 max-w-4xl mx-auto">
+      <input type="hidden" id="editId">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-mono text-cyan-400 mb-1">Judul</label>
+          <input type="text" id="editTitle" placeholder="Judul postingan..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-mono text-cyan-400 mb-1">Rubrik</label>
+            <select id="editCategory" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition">
+              <option value="opini">✍️ Opini & Tulisan</option>
+              <option value="ai-keseharian">🤖 AI & Keseharian</option>
+              <option value="tutorial">📚 Tutorial</option>
+              <option value="review">🔍 Review</option>
+              <option value="insight">💡 Insight</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-mono text-cyan-400 mb-1">Tags (koma)</label>
+            <input type="text" id="editTags" placeholder="AI, LLM, Kehidupan"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-mono text-cyan-400 mb-1">Excerpt (ringkasan singkat)</label>
+          <textarea id="editExcerpt" rows="2" placeholder="Ringkasan singkat..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-mono text-cyan-400 mb-1">Konten (Markdown)</label>
+          <textarea id="editContent" rows="15" placeholder="Tulis konten di sini... **bold**, *italic*, `code`, ## heading"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition resize-y editor-content font-mono text-sm"></textarea>
+        </div>
+
+        <!-- File Attachments -->
+        <div>
+          <label class="block text-sm font-mono text-cyan-400 mb-2">📎 Lampiran File</label>
+          <div id="fileDropZone" class="file-drop rounded-xl p-6 text-center cursor-pointer">
+            <input type="file" id="fileInput" multiple accept=".pdf,.ppt,.pptx,.mp4,.webm,.jpg,.jpeg,.png,.gif,.zip,.txt" class="hidden">
+            <div class="text-gray-400">
+              <p class="text-2xl mb-2">📁</p>
+              <p class="text-sm">Drag & drop file di sini atau <span class="text-cyan-400 underline">klik untuk pilih</span></p>
+              <p class="text-xs text-gray-500 mt-1">PDF, PPT, Video, Gambar, ZIP (max 100MB)</p>
+            </div>
+          </div>
+          <div id="attachmentList" class="mt-3 space-y-2"></div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="editPublished" checked class="w-4 h-4 accent-cyan-400">
+            <span class="text-sm">Publish langsung</span>
+          </label>
+          <div class="flex-1"></div>
+          <button onclick="savePost()" class="btn-glow px-6 py-2 rounded-xl font-semibold text-sm">💾 Simpan</button>
+          <button onclick="showTab('posts')" class="glass px-6 py-2 rounded-xl text-sm hover:border-cyan-400 transition">Batal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var AUTH_TOKEN = localStorage.getItem('blog_admin_token') || '';
+var pendingFiles = [];
+var currentPostId = null;
+
+/* === AUTH === */
+function login() {
+  var pw = document.getElementById('password').value;
+  fetch('/api/blog?limit=1', { headers: { 'Authorization': 'Bearer ' + pw } })
+  .then(function(r) { if (r.ok) { AUTH_TOKEN = pw; localStorage.setItem('blog_admin_token', pw); showDashboard(); } else { document.getElementById('loginError').classList.remove('hidden'); } })
+  .catch(function() { document.getElementById('loginError').classList.remove('hidden'); });
+}
+function logout() { AUTH_TOKEN = ''; localStorage.removeItem('blog_admin_token'); location.reload(); }
+function showDashboard() { document.getElementById('loginPage').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden'); loadPosts(); }
+if (AUTH_TOKEN) { fetch('/api/blog?limit=1', { headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } }).then(function(r) { if (r.ok) showDashboard(); }); }
+
+/* === TABS === */
+function showTab(tab) {
+  ['postsTab','newsTab','editorTab'].forEach(function(id) { document.getElementById(id).classList.add('hidden'); });
+  ['tabPosts','tabNews'].forEach(function(id) { document.getElementById(id).classList.remove('text-cyan-400','border-cyan-400/40'); });
+  if (tab === 'posts') { document.getElementById('postsTab').classList.remove('hidden'); document.getElementById('tabPosts').classList.add('text-cyan-400','border-cyan-400/40'); loadPosts(); }
+  else if (tab === 'news') { document.getElementById('newsTab').classList.remove('hidden'); document.getElementById('tabNews').classList.add('text-cyan-400','border-cyan-400/40'); loadNews(); }
+  else if (tab === 'new') { document.getElementById('editorTab').classList.remove('hidden'); clearEditor(); }
+}
+
+/* === POSTS === */
+function loadPosts() {
+  fetch('/api/blog?limit=50', { headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } })
+  .then(function(r) { return r.json(); }).then(function(d) {
+    var list = document.getElementById('postsList');
+    var posts = d.posts || [];
+    if (!posts.length) { list.innerHTML = '<div class="glass rounded-xl p-8 text-center text-gray-400">Belum ada postingan. Klik "+ Tulis Baru" untuk mulai.</div>'; return; }
+    var catIcons = { 'opini': '✍️', 'ai-keseharian': '🤖', 'tutorial': '📚', 'review': '🔍', 'insight': '💡' };
+    var catNames = { 'opini': 'Opini', 'ai-keseharian': 'AI & Keseharian', 'tutorial': 'Tutorial', 'review': 'Review', 'insight': 'Insight' };
+    list.innerHTML = posts.map(function(p) {
+      var icon = catIcons[p.category] || '📝';
+      var catName = catNames[p.category] || p.category;
+      return '<div class="glass rounded-xl p-4 flex items-center gap-4">' +
+        '<div class="flex-1">' +
+          '<div class="flex items-center gap-2 mb-1">' +
+            '<span class="text-xs font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400">' + icon + ' ' + catName + '</span>' +
+            (p.published ? '<span class="text-xs text-green-400">● Published</span>' : '<span class="text-xs text-yellow-400">● Draft</span>') +
+          '</div>' +
+          '<h3 class="font-semibold">' + esc(p.title) + '</h3>' +
+          '<p class="text-sm text-gray-400 truncate">' + esc(p.excerpt || '') + '</p>' +
+          '<p class="text-xs text-gray-500 mt-1">' + new Date(p.created_at).toLocaleDateString('id-ID') + '</p>' +
+        '</div>' +
+        '<div class="flex gap-2">' +
+          '<button onclick="editPost(\'' + p.id + '\')" class="glass px-3 py-1.5 rounded-lg text-xs hover:border-cyan-400 transition">✏️ Edit</button>' +
+          '<button onclick="viewPost(\'' + p.slug + '\')" class="glass px-3 py-1.5 rounded-lg text-xs hover:border-cyan-400 transition">👁️</button>' +
+          '<button onclick="deletePost(\'' + p.id + '\')" class="glass px-3 py-1.5 rounded-lg text-xs text-red-400 hover:border-red-400 transition">🗑️</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  });
+}
+
+function viewPost(slug) { window.open('/blog.html?slug=' + slug, '_blank'); }
+
+/* === NEWS === */
+function loadNews() {
+  fetch('/api/news?limit=30').then(function(r) { return r.json(); }).then(function(d) {
+    var list = document.getElementById('newsList');
+    var articles = d.articles || [];
+    if (!articles.length) { list.innerHTML = '<div class="glass rounded-xl p-8 text-center text-gray-400">Belum ada berita. Jalankan cron atau tunggu update otomatis.</div>'; return; }
+    list.innerHTML = articles.map(function(a) {
+      return '<div class="glass rounded-xl p-4">' +
+        '<div class="flex items-start gap-3">' +
+          '<div class="flex-1">' +
+            '<div class="flex items-center gap-2 mb-1">' +
+              '<span class="text-xs font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">' + esc(a.category || 'ai-news') + '</span>' +
+              '<span class="text-xs text-gray-400">Score: ' + (a.gemini_score || '?') + '</span>' +
+              '<span class="text-xs text-gray-500">' + esc(a.source || '') + '</span>' +
+            '</div>' +
+            '<h3 class="font-semibold"><a href="' + esc(a.url) + '" target="_blank" class="hover:text-cyan-400 transition">' + esc(a.title) + '</a></h3>' +
+            '<p class="text-sm text-gray-400 mt-1">' + esc(a.gemini_summary || a.summary || '') + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  });
+}
+
+/* === EDITOR === */
+function clearEditor() {
+  document.getElementById('editId').value = '';
+  document.getElementById('editTitle').value = '';
+  document.getElementById('editContent').value = '';
+  document.getElementById('editExcerpt').value = '';
+  document.getElementById('editTags').value = '';
+  document.getElementById('editCategory').value = 'opini';
+  document.getElementById('editPublished').checked = true;
+  pendingFiles = [];
+  currentPostId = null;
+  renderAttachments([]);
+}
+
+function editPost(id) {
+  fetch('/api/blog?limit=50', { headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } })
+  .then(function(r) { return r.json(); }).then(function(d) {
+    var post = (d.posts || []).find(function(p) { return p.id === id; });
+    if (!post) return alert('Post not found');
+    showTab('new');
+    document.getElementById('editId').value = post.id;
+    document.getElementById('editTitle').value = post.title;
+    document.getElementById('editContent').value = post.content;
+    document.getElementById('editExcerpt').value = post.excerpt || '';
+    document.getElementById('editTags').value = (post.tags || []).join(', ');
+    document.getElementById('editCategory').value = post.category || 'opini';
+    document.getElementById('editPublished').checked = post.published;
+    currentPostId = post.id;
+  });
+}
+
+function savePost() {
+  var id = document.getElementById('editId').value;
+  var data = {
+    title: document.getElementById('editTitle').value,
+    content: document.getElementById('editContent').value,
+    excerpt: document.getElementById('editExcerpt').value,
+    category: document.getElementById('editCategory').value,
+    tags: document.getElementById('editTags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean),
+    published: document.getElementById('editPublished').checked
+  };
+  if (!data.title || !data.content) return alert('Judul dan konten wajib diisi');
+  if (id) data.id = id;
+
+  fetch('/api/blog', {
+    method: id ? 'PUT' : 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + AUTH_TOKEN },
+    body: JSON.stringify(data)
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    var postId = d.post?.id || id;
+    // Upload pending files
+    if (pendingFiles.length > 0 && postId) {
+      uploadFiles(postId).then(function() { alert('Saved!'); showTab('posts'); });
+    } else {
+      alert(id ? 'Updated!' : 'Created!');
+      showTab('posts');
+    }
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+/* === FILE UPLOAD === */
+function uploadFiles(postId) {
+  var promises = pendingFiles.map(function(file) {
+    var fd = new FormData();
+    fd.append('file', file);
+    fd.append('post_id', postId);
+    return fetch('/api/upload', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN },
+      body: fd
+    }).then(function(r) { return r.json(); });
+  });
+  return Promise.all(promises);
+}
+
+function deleteAttachment(id) {
+  if (!confirm('Hapus file ini?')) return;
+  fetch('/api/upload?id=' + id, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN }
+  }).then(function(r) { return r.json(); }).then(function() { loadPostAttachments(currentPostId); });
+}
+
+function renderAttachments(attachments) {
+  var list = document.getElementById('attachmentList');
+  var all = attachments.map(function(a) { return { ...a, isNew: false }; })
+    .concat(pendingFiles.map(function(f, i) { return { id: 'new-' + i, file_name: f.name, file_type: f.type, file_size: f.size, isNew: true, idx: i }; }));
+
+  if (!all.length) { list.innerHTML = ''; return; }
+
+  var fileIcons = {
+    'application/pdf': '📄',
+    'application/vnd.ms-powerpoint': '📊',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': '📊',
+    'video/mp4': '🎬', 'video/webm': '🎬',
+    'image/jpeg': '🖼️', 'image/png': '🖼️', 'image/gif': '🖼️',
+    'text/plain': '📝', 'application/zip': '📦'
+  };
+
+  list.innerHTML = all.map(function(a) {
+    var icon = fileIcons[a.file_type] || '📎';
+    var size = a.file_size ? (a.file_size / 1024 / 1024).toFixed(1) + ' MB' : '';
+    var action = a.isNew
+      ? '<button onclick="removePendingFile(' + a.idx + ')" class="text-red-400 hover:text-red-300 text-xs">✕</button>'
+      : '<a href="' + esc(a.file_url) + '" target="_blank" class="text-cyan-400 hover:text-cyan-300 text-xs">⬇️</a> <button onclick="deleteAttachment(\'' + a.id + '\')" class="text-red-400 hover:text-red-300 text-xs ml-1">✕</button>';
+    return '<div class="attachment-item flex items-center gap-3 bg-white/5 rounded-lg px-3 py-2">' +
+      '<span class="text-lg">' + icon + '</span>' +
+      '<div class="flex-1 min-w-0">' +
+        '<p class="text-sm truncate">' + esc(a.file_name) + '</p>' +
+        '<p class="text-xs text-gray-500">' + esc(a.file_type) + ' · ' + size + '</p>' +
+      '</div>' + action + '</div>';
+  }).join('');
+}
+
+function removePendingFile(idx) { pendingFiles.splice(idx, 1); renderAttachments([]); }
+
+function loadPostAttachments(postId) {
+  if (!postId) return;
+  fetch('/api/blog?slug=' + encodeURIComponent(postId), { headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } })
+  .then(function(r) { return r.json(); }).then(function(d) {
+    renderAttachments(d.post?.attachments || []);
+  });
+}
+
+function deletePost(id) {
+  if (!confirm('Hapus postingan ini?')) return;
+  fetch('/api/blog?id=' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } })
+  .then(function(r) { return r.json(); }).then(function() { loadPosts(); });
+}
+
+/* === FILE DROP ZONE === */
+var dropZone = document.getElementById('fileDropZone');
+var fileInput = document.getElementById('fileInput');
+
+if (dropZone) {
+  dropZone.onclick = function() { fileInput.click(); };
+  dropZone.ondragover = function(e) { e.preventDefault(); dropZone.classList.add('dragover'); };
+  dropZone.ondragleave = function() { dropZone.classList.remove('dragover'); };
+  dropZone.ondrop = function(e) {
+    e.preventDefault(); dropZone.classList.remove('dragover');
+    handleFiles(e.dataTransfer.files);
+  };
+}
+if (fileInput) {
+  fileInput.onchange = function() { handleFiles(fileInput.files); fileInput.value = ''; };
+}
+
+function handleFiles(files) {
+  for (var i = 0; i < files.length; i++) {
+    if (files[i].size > 100 * 1024 * 1024) { alert(files[i].name + ' terlalu besar (max 100MB)'); continue; }
+    pendingFiles.push(files[i]);
+  }
+  renderAttachments([]);
+}
+
+/* === UTILS === */
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+</script>
+
+</body>
+</html>
