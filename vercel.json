@@ -1,10 +1,5 @@
 {
-  "rewrites": [
-    { "source": "/api/blog/:id?", "destination": "/api/blog.js" },
-    { "source": "/api/news", "destination": "/api/news.js" },
-    { "source": "/api/cron/fetch-news", "destination": "/api/cron/fetch-news.js" },
-    { "source": "/admin", "destination": "/admin.html" }
-  ],
+  "outputDirectory": ".",
   "crons": [
     {
       "path": "/api/cron/fetch-news",
