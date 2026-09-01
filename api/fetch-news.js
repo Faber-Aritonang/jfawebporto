@@ -187,19 +187,13 @@ module.exports = async (req, res) => {
       return res.status(200).json({ message: 'No articles fetched', count: 0 });
     }
 
-    // 2. Deduplicate
-    const { data: existing } = await supabase.from('news_articles').select('url').limit(500);
-    const existingUrls = new Set((existing || []).map(e => e.url));
-    const newArticles = allArticles.filter(a => !existingUrls.has(a.url));
-    console.log(`[Dedup] ${newArticles.length} new (${allArticles.length - newArticles.length} dupes)`);
-
-    if (newArticles.length === 0) {
-      return res.status(200).json({ message: 'No new articles', count: 0 });
-    }
+    // 2. Clear old articles & re-fetch fresh (so translations are updated)
+    await supabase.from('news_articles').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    console.log('[Dedup] Cleared old articles for fresh insert');
 
     // 3. Gemini curation + translation
     console.log('[Gemini] Curating + translating to Indonesian...');
-    const curated = await geminiCurate(newArticles, geminiKey);
+    const curated = await geminiCurate(allArticles, geminiKey);
     console.log(`[Gemini] ${curated.length} articles scored >= 40`);
 
     // 4. Insert into Supabase
