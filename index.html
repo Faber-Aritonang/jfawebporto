@@ -1266,7 +1266,7 @@
     };
 
     var timer = null;
-    var maxMs = 60000;
+    var maxMs = 300000; // 5 minutes max typing phase
 
     function mkDiv(cls, html) {
       var d = document.createElement('div');
@@ -1302,14 +1302,9 @@
 
       function next() {
         // 30s timeout check
-        if (Date.now() - t0 > maxMs) {
-          el.appendChild(mkDiv('', P + '<span class="terminal-cursor"></span>'));
-          timer = setTimeout(runCycle, 4000);
-          return;
-        }
         if (li >= lines.length) {
           el.appendChild(mkDiv('', P + '<span class="terminal-cursor"></span>'));
-          timer = setTimeout(runCycle, 5000);
+          timer = setTimeout(runCycle, 300000); // pause 5 minutes before loop
           return;
         }
         var row = lines[li];
