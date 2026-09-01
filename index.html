@@ -959,7 +959,14 @@
       .then(function(r) { return r.json(); })
       .then(function(d) {
         typingDiv.className = 'chat-msg bot';
-        typingDiv.textContent = d.reply || 'Maaf, terjadi kesalahan.';
+        var reply = d.reply || 'Maaf, terjadi kesalahan.';
+        // Parse markdown links [text](url) to HTML <a>
+        reply = reply.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">$1</a>');
+        // Remove leftover ** bold markers
+        reply = reply.replace(/\*\*/g, '');
+        // Convert line breaks to <br>
+        reply = reply.replace(/\n/g, '<br>');
+        typingDiv.innerHTML = reply;
         chatMessages.scrollTop = chatMessages.scrollHeight;
       })
       .catch(function() {

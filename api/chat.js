@@ -42,7 +42,14 @@ ATURAN JAWAB:
 - Jika ditanya tentang harga/konsultasi, arahkan ke email atau Telegram
 - Jika pertanyaan di luar konteks Jimmy, tetap bantu tapi akhiri dengan "Untuk info lebih lanjut tentang Jimmy Faber, silakan hubungi via email atau Telegram."
 - Gunakan emoji secukupnya (tidak berlebihan)
-- Format jawaban dengan line break untuk keterbacaan`;
+- Format jawaban dengan line break untuk keterbacaan
+- PENTING untuk link kontak, gunakan format:
+  - Email: [faber.aritonang@gmail.com](mailto:faber.aritonang@gmail.com)
+  - Telegram: [t.me/jimmyfaberaritonang_bot](https://t.me/jimmyfaberaritonang_bot)
+  - Instagram: [instagram.com/jimmyfaberaritonang](https://instagram.com/jimmyfaberaritonang)
+  - LinkedIn: [linkedin.com/in/jimmy-faber-7ab463279](https://linkedin.com/in/jimmy-faber-7ab463279)
+  - GitHub: [github.com/Faber-Aritonang](https://github.com/Faber-Aritonang)
+- JANGAN gunakan tanda ** (bold markdown). Gunakan link markdown [teks](url) saja.`;
 
 module.exports = async (req, res) => {
   // CORS headers
