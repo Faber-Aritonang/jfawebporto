@@ -117,8 +117,8 @@
     }
     
     .neural line { 
-      stroke: rgba(34,211,238,.2); 
-      stroke-width: 1;
+      stroke: rgba(255,255,255,.5);
+      stroke-width: 1.5;
       stroke-dasharray: 6 3;
       animation: neuralPulse 3s ease-in-out infinite;
     }
@@ -126,8 +126,8 @@
     .neural circle.flow-particle { filter: drop-shadow(0 0 4px currentColor); }
     
     @keyframes neuralPulse {
-      0%, 100% { opacity: .15; stroke-dashoffset: 0; }
-      50% { opacity: .6; stroke-dashoffset: 18; }
+      0%, 100% { opacity: .4; stroke-dashoffset: 0; }
+      50% { opacity: .9; stroke-dashoffset: 18; }
     }
     @keyframes nodeGlow {
       0%, 100% { r: 4; opacity: .5; filter: drop-shadow(0 0 2px #22d3ee); }
