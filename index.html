@@ -1269,7 +1269,7 @@
     };
 
     var timer = null;
-    var maxMs = 30000;
+    var maxMs = 60000;
 
     function mkDiv(cls, html) {
       var d = document.createElement('div');
@@ -1307,12 +1307,12 @@
         // 30s timeout check
         if (Date.now() - t0 > maxMs) {
           el.appendChild(mkDiv('', P + '<span class="terminal-cursor"></span>'));
-          timer = setTimeout(runCycle, 2000);
+          timer = setTimeout(runCycle, 4000);
           return;
         }
         if (li >= lines.length) {
           el.appendChild(mkDiv('', P + '<span class="terminal-cursor"></span>'));
-          timer = setTimeout(runCycle, 2500);
+          timer = setTimeout(runCycle, 5000);
           return;
         }
         var row = lines[li];
