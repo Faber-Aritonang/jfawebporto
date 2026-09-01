@@ -233,7 +233,7 @@ module.exports = async (req, res) => {
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
     console.log(`[Cron] Done in ${elapsed}s — ${curated.length} articles stored`);
-    return res.status(200).json({ message: 'Done', fetched: allArticles.length, new: newArticles.length, curated: curated.length, elapsed: elapsed + 's' });
+    return res.status(200).json({ message: 'Done', fetched: allArticles.length, curated: curated.length, elapsed: elapsed + 's' });
 
   } catch (err) {
     console.error('[Cron] Fatal error:', err);
