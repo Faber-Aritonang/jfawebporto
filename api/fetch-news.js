@@ -26,7 +26,7 @@ const RSS_FEEDS = [
   { name: 'Katadata', url: 'https://katadata.co.id/feed' },
 ];
 
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent';
 const BATCH_SIZE = 10; // articles per Gemini call
 const MAX_ARTICLES = 60; // max articles to curate total (avoid timeout)
 const MIN_SCORE = 40;
