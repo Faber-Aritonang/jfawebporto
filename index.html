@@ -723,22 +723,22 @@
     .then(function(d) {
       var posts = d.posts || [];
       if (!posts.length) {
-        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">✍️ Belum ada tulisan opini. Kunjungi <a href="/admin" class="text-accent hover:underline">Admin Panel</a> untuk mulai menulis.</div>';
+        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">\u270D\uFE0F Belum ada tulisan opini. Kunjungi <a href="/admin" class="text-accent hover:underline">Admin Panel</a> untuk mulai menulis.</div>';
         return;
       }
       grid.innerHTML = posts.map(function(p) {
         var catColors = { 'opini': 'bg-cyan-500/20 text-cyan-400', 'tutorial': 'bg-green-500/20 text-green-400', 'review': 'bg-purple-500/20 text-purple-400', 'insight': 'bg-orange-500/20 text-orange-400' };
         var catClass = catColors[p.category] || 'bg-cyan-500/20 text-cyan-400';
         var tags = (p.tags || []).map(function(t) { return '<span class="text-xs bg-white/10 px-2 py-0.5 rounded">' + esc(t) + '</span>'; }).join('');
-        return '<div class="glass glass-hover rounded-2xl p-6 flex flex-col cursor-pointer" onclick="window.open(\'/blog/' + esc(p.slug) + '\', \"_blank\")">' +
-          '<div class="flex justify-between items-start mb-3">' +
-            '<span class="text-xs font-mono px-2 py-0.5 rounded ' + catClass + '">' + esc(p.category || 'opini') + '</span>' +
-            '<span class="text-gray-500 text-xs">' + new Date(p.created_at).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric' }) + '</span>' +
-          '</div>' +
-          '<h3 class="text-xl font-bold mb-2 leading-tight hover:text-accent transition">' + esc(p.title) + '</h3>' +
-          '<p class="text-sm text-gray-400 flex-1 mb-3">' + esc(p.excerpt || '') + '</p>' +
-          '<div class="flex gap-1.5 flex-wrap mt-auto">' + tags + '</div>' +
-        '</div>';
+        return '<a href="/blog.html?slug=' + esc(p.slug) + '" class="glass glass-hover rounded-2xl p-6 flex flex-col block">'
+          + '<div class="flex justify-between items-start mb-3">'
+            + '<span class="text-xs font-mono px-2 py-0.5 rounded ' + catClass + '">' + esc(p.category || 'opini') + '</span>'
+            + '<span class="text-gray-500 text-xs">' + new Date(p.created_at).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric' }) + '</span>'
+          + '</div>'
+          + '<h3 class="text-xl font-bold mb-2 leading-tight hover:text-accent transition">' + esc(p.title) + '</h3>'
+          + '<p class="text-sm text-gray-400 flex-1 mb-3">' + esc(p.excerpt || '') + '</p>'
+          + '<div class="flex gap-1.5 flex-wrap mt-auto">' + tags + '</div>'
+        + '</a>';
       }).join('');
     })
     .catch(function(e) {
