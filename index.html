@@ -1033,10 +1033,10 @@
   function loadBlogOpini() {
     var grid = document.getElementById('blogOpiniGrid');
     if (!grid) return;
-    fetch('/api/blog?limit=6')
+    fetch('/api/blog?limit=20')
     .then(function(r) { return r.json(); })
     .then(function(d) {
-      var posts = d.posts || [];
+      var posts = (d.posts || []).filter(function(p) { return p.category !== 'ai-keseharian'; }).slice(0, 6);
       if (!posts.length) {
         grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">Belum ada tulisan opini. Kunjungi <a href="/admin" class="text-accent hover:underline">Admin Panel</a> untuk mulai menulis.</div>';
         return;
