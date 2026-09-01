@@ -135,8 +135,8 @@ git push origin main
 
 ## 📫 Kontak
 
-- 💼 [LinkedIn](https://linkedin.com/in/jimmyfaber)
-- 📸 [Instagram](https://instagram.com/jimmyfaber)
+- 💼 [LinkedIn](https://linkedin.com/in/jimmy-faber-7ab463279)
+- 📸 [Instagram](https://instagram.com/jimmyfaberaritonang)
 - 🤖 [Telegram Bot](https://t.me/jimmyfaber)
 - 🐙 [GitHub](https://github.com/Faber-Aritonang)
 
