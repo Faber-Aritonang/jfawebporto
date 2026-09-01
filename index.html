@@ -1239,138 +1239,119 @@
   } catch(e) { console.error('[Chat] Error:', e); }
 
   /* === PYTHON VENV TERMINAL EFFECT === */
-  try {
-    var terminalLines = document.getElementById('terminalLines');
-    if (terminalLines) {
-      var termLang = (typeof currentLang !== 'undefined') ? currentLang : 'id';
-      var PROMPT = '<span class="t-success">(venv)</span> <span class="t-highlight">jimmy</span>@<span style="color:#a5d6ff">portfolio</span> <span style="color:#d2a8ff">~/project</span> $ ';
-      var pyBanner = [
-        '<span class="t-comment">Python 3.11.4 (main, Jun  8 2025)</span>',
-        '<span class="t-comment">[GCC 12.3.0] on linux</span>',
-        '<span class="t-output">Type \"help\", \"copyright\", \"credits\" or \"license\" for more information.</span>',
-        ''
-      ];
+  (function() {
+    var el = document.getElementById('terminalLines');
+    if (!el) return;
+    var termLang = (typeof currentLang !== 'undefined') ? currentLang : 'id';
+    var P = '<span class="t-success">(venv)</span> <span class="t-highlight">jimmy</span>@<span style="color:#a5d6ff">portfolio</span> <span style="color:#d2a8ff">~/project</span> $ ';
+    var banner = [
+      '<span class="t-comment">Python 3.11.4 (main, Jun  8 2025)</span>',
+      '<span class="t-comment">[GCC 12.3.0] on linux</span>',
+      '<span class="t-output">Type &quot;help&quot;, &quot;copyright&quot;, &quot;credits&quot; or &quot;license&quot; for more information.</span>'
+    ];
+    var DATA = {
+      id: [
+        { c: 'from portfolio import JimmyFaber', o: '<span class="t-success">&gt;&gt;&gt; </span>JimmyFaber loaded &mdash; <span style="color:#3fb950">AI Implementator</span>' },
+        { c: 'print(jimmy.about)', o: 'Saya Jimmy Faber, seorang AI Implementator yang berfokus pada\npenerapan teknologi AI ke dalam sistem bisnis nyata.\nSaya percaya AI bukan sekadar tren, melainkan alat yang\nmampu mentransformasi cara bisnis beroperasi &mdash; lebih cepat,\nlebih cerdas, lebih efisien.' },
+        { c: 'print(jimmy.experience)', o: 'Dengan latar belakang di bidang IT, saya menangani seluruh\nsiklus implementasi: analisis kebutuhan, pengembangan,\nintegrasi API/model, hingga deployment.\nTujuan saya: memastikan setiap solusi AI memberikan\nROI yang terukur dan sustainable.' },
+        { c: 'jimmy.skills', o: '[<span class="t-success">&quot;Python&quot;</span>, <span class="t-highlight">&quot;TensorFlow&quot;</span>, <span style="color:#a5d6ff">&quot;PyTorch&quot;</span>, <span class="t-flag">&quot;FastAPI&quot;</span>,\n <span style="color:#d2a8ff">&quot;Node.js&quot;</span>, <span class="t-success">&quot;Docker&quot;</span>, <span class="t-highlight">&quot;LLM&quot;</span>, <span style="color:#a5d6ff">&quot;RAG&quot;</span>, <span class="t-flag">&quot;Automation&quot;</span>]' },
+        { c: 'jimmy.goal', o: '<span class="t-string">&quot;Membangun sistem AI yang memberikan dampak nyata bagi bisnis&quot;</span>' },
+        { c: 'jimmy.contact', o: 'Email: <span class="t-highlight">faber.aritonang@gmail.com</span>\nTelegram: <span class="t-success">@jimmyfaberaritonang_bot</span>\nGitHub: <span style="color:#a5d6ff">github.com/Faber-Aritonang</span>' }
+      ],
+      en: [
+        { c: 'from portfolio import JimmyFaber', o: '<span class="t-success">&gt;&gt;&gt; </span>JimmyFaber loaded &mdash; <span style="color:#3fb950">AI Implementator</span>' },
+        { c: 'print(jimmy.about)', o: "I'm Jimmy Faber, an AI Implementator focused on applying\nAI technology to real business systems. I believe AI is\nnot just a trend, but a tool that can transform how\nbusinesses operate &mdash; faster, smarter, more efficient." },
+        { c: 'print(jimmy.experience)', o: "With an IT background, I handle the full implementation\ncycle: requirements analysis, development, API/model\nintegration, to deployment. My goal is to ensure each\nAI solution provides measurable and sustainable ROI." },
+        { c: 'jimmy.skills', o: '[<span class="t-success">&quot;Python&quot;</span>, <span class="t-highlight">&quot;TensorFlow&quot;</span>, <span style="color:#a5d6ff">&quot;PyTorch&quot;</span>, <span class="t-flag">&quot;FastAPI&quot;</span>,\n <span style="color:#d2a8ff">&quot;Node.js&quot;</span>, <span class="t-success">&quot;Docker&quot;</span>, <span class="t-highlight">&quot;LLM&quot;</span>, <span style="color:#a5d6ff">&quot;RAG&quot;</span>, <span class="t-flag">&quot;Automation&quot;</span>]' },
+        { c: 'jimmy.goal', o: '<span class="t-string">&quot;Building AI systems that create real impact for businesses&quot;</span>' },
+        { c: 'jimmy.contact', o: 'Email: <span class="t-highlight">faber.aritonang@gmail.com</span>\nTelegram: <span class="t-success">@jimmyfaberaritonang_bot</span>\nGitHub: <span style="color:#a5d6ff">github.com/Faber-Aritonang</span>' }
+      ]
+    };
 
-      var termData = {
-        id: [
-          { cmd: 'from portfolio import JimmyFaber', output: '<span class="t-success">>>> </span>JimmyFaber loaded — <span style="color:#3fb950">AI Implementator</span>' },
-          { cmd: 'print(jimmy.about)', output: 'Saya Jimmy Faber, seorang AI Implementator yang berfokus\npada penerapan teknologi AI ke dalam sistem bisnis nyata.\nSaya percaya AI bukan sekadar tren, melainkan alat yang\nmampu mentransformasi cara bisnis beroperasi — lebih cepat,\nlebih cerdas, lebih efisien.' },
-          { cmd: 'print(jimmy.experience)', output: 'Dengan latar belakang di bidang IT, saya menangani seluruh\nsiklus implementasi: analisis kebutuhan, pengembangan,\nintegrasi API/model, hingga deployment.\nTujuan saya: memastikan setiap solusi AI memberikan\nROI yang terukur dan sustainable.' },
-          { cmd: 'jimmy.skills', output: '[<span class="t-success">\"Python\"</span>, <span class="t-highlight">\"TensorFlow\"</span>, <span style="color:#a5d6ff">\"PyTorch\"</span>, <span class="t-flag">\"FastAPI\"</span>,\n <span style="color:#d2a8ff">\"Node.js\"</span>, <span class="t-success">\"Docker\"</span>, <span class="t-highlight">\"LLM\"</span>, <span style="color:#a5d6ff">\"RAG\"</span>, <span class="t-flag">\"Automation\"</span>]' },
-          { cmd: 'jimmy.goal', output: '<span class="t-string">\"Membangun sistem AI yang memberikan dampak nyata bagi bisnis\"</span>' },
-          { cmd: 'jimmy.contact', output: 'Email: <span class="t-highlight">faber.aritonang@gmail.com</span>\nTelegram: <span class="t-success">@jimmyfaberaritonang_bot</span>\nGitHub: <span style="color:#a5d6ff">github.com/Faber-Aritonang</span>' }
-        ],
-        en: [
-          { cmd: 'from portfolio import JimmyFaber', output: '<span class="t-success">>>> </span>JimmyFaber loaded — <span style="color:#3fb950">AI Implementator</span>' },
-          { cmd: 'print(jimmy.about)', output: "I'm Jimmy Faber, an AI Implementator focused on applying\nAI technology to real business systems. I believe AI is\nnot just a trend, but a tool that can transform how\nbusinesses operate — faster, smarter, more efficient." },
-          { cmd: 'print(jimmy.experience)', output: "With an IT background, I handle the full implementation\ncycle: requirements analysis, development, API/model\nintegration, to deployment. My goal is to ensure each\nAI solution provides measurable and sustainable ROI." },
-          { cmd: 'jimmy.skills', output: '[<span class="t-success">\"Python\"</span>, <span class="t-highlight">\"TensorFlow\"</span>, <span style="color:#a5d6ff">\"PyTorch\"</span>, <span class="t-flag">\"FastAPI\"</span>,\n <span style="color:#d2a8ff">\"Node.js\"</span>, <span class="t-success">\"Docker\"</span>, <span class="t-highlight">\"LLM\"</span>, <span style="color:#a5d6ff">\"RAG\"</span>, <span class="t-flag">\"Automation\"</span>]' },
-          { cmd: 'jimmy.goal', output: '<span class="t-string">\"Building AI systems that create real impact for businesses\"</span>' },
-          { cmd: 'jimmy.contact', output: 'Email: <span class="t-highlight">faber.aritonang@gmail.com</span>\nTelegram: <span class="t-success">@jimmyfaberaritonang_bot</span>\nGitHub: <span style="color:#a5d6ff">github.com/Faber-Aritonang</span>' }
-        ]
-      };
+    var timer = null;
+    var maxMs = 30000;
 
-      var termTimer = null;
-      var termRunning = false;
-
-      function runTerminal() {
-        if (termRunning) return;
-        termRunning = true;
-        terminalLines.innerHTML = '';
-        var lines = termData[termLang] || termData.id;
-        var i = 0;
-        var startTime = Date.now();
-        var LOOP_MS = 30000; // 30 seconds
-
-        // Show Python banner first
-        pyBanner.forEach(function(b) {
-          var bd = document.createElement('div');
-          bd.innerHTML = b;
-          terminalLines.appendChild(bd);
-        });
-
-        function typeCommand() {
-          // Stop after 30 seconds — clear and restart loop
-          if (Date.now() - startTime > LOOP_MS) {
-            termRunning = false;
-            termTimer = setTimeout(function() {
-              runTerminal();
-            }, 1500);
-            return;
-          }
-          if (i >= lines.length) {
-            // All commands done — add final prompt, then loop
-            var finalLine = document.createElement('div');
-            finalLine.innerHTML = PROMPT + '<span class="terminal-cursor"></span>';
-            terminalLines.appendChild(finalLine);
-            termRunning = false;
-            termTimer = setTimeout(function() {
-              runTerminal();
-            }, 2000);
-            return;
-          }
-          var line = lines[i];
-          var lineDiv = document.createElement('div');
-          lineDiv.className = 'mb-2';
-          lineDiv.innerHTML = PROMPT;
-          terminalLines.appendChild(lineDiv);
-
-          var cmdSpan = document.createElement('span');
-          cmdSpan.className = 't-cmd';
-          lineDiv.appendChild(cmdSpan);
-          var ci = 0;
-          function typeChar() {
-            if (Date.now() - startTime > LOOP_MS) {
-              termRunning = false;
-              termTimer = setTimeout(function() { runTerminal(); }, 1500);
-              return;
-            }
-            if (ci < line.cmd.length) {
-              cmdSpan.textContent += line.cmd[ci];
-              ci++;
-              setTimeout(typeChar, 25 + Math.random() * 35);
-            } else {
-              setTimeout(function() {
-                var outDiv = document.createElement('div');
-                outDiv.className = 't-output pl-0 whitespace-pre-wrap mb-2';
-                outDiv.style.marginLeft = '0';
-                outDiv.innerHTML = line.output;
-                terminalLines.appendChild(outDiv);
-                terminalLines.scrollTop = terminalLines.scrollHeight;
-                i++;
-                setTimeout(typeCommand, 500);
-              }, 250);
-            }
-          }
-          typeChar();
-        }
-
-        // Start typing when visible
-        var termObserver = new IntersectionObserver(function(entries) {
-          entries.forEach(function(entry) {
-            if (entry.isIntersecting && !termRunning) {
-              typeCommand();
-              termObserver.unobserve(entry.target);
-            }
-          });
-        }, { threshold: 0.2 });
-        termObserver.observe(terminalLines);
-      }
-
-      runTerminal();
-
-      var origSetLang = window.setLang;
-      if (typeof origSetLang === 'function') {
-        window.setLang = function(l) {
-          termLang = l;
-          clearTimeout(termTimer);
-          termRunning = false;
-          origSetLang(l);
-          runTerminal();
-        };
-      }
+    function mkDiv(cls, html) {
+      var d = document.createElement('div');
+      if (cls) d.className = cls;
+      if (html) d.innerHTML = html;
+      return d;
     }
-  } catch(e) { console.error('[Terminal] Error:', e); }
+
+    function typeStr(parent, text, cb) {
+      var idx = 0;
+      function tick() {
+        if (idx < text.length) {
+          parent.textContent += text[idx];
+          idx++;
+          timer = setTimeout(tick, 20 + Math.random() * 30);
+        } else {
+          cb();
+        }
+      }
+      tick();
+    }
+
+    function runCycle() {
+      clearTimeout(timer);
+      el.innerHTML = '';
+      var lines = DATA[termLang] || DATA.id;
+      var li = 0;
+      var t0 = Date.now();
+
+      // banner
+      banner.forEach(function(b) { el.appendChild(mkDiv('', b)); });
+      el.appendChild(mkDiv('', ''));
+
+      function next() {
+        // 30s timeout check
+        if (Date.now() - t0 > maxMs) {
+          el.appendChild(mkDiv('', P + '<span class="terminal-cursor"></span>'));
+          timer = setTimeout(runCycle, 2000);
+          return;
+        }
+        if (li >= lines.length) {
+          el.appendChild(mkDiv('', P + '<span class="terminal-cursor"></span>'));
+          timer = setTimeout(runCycle, 2500);
+          return;
+        }
+        var row = lines[li];
+        // prompt line
+        var pDiv = mkDiv('mb-2', P);
+        var cmdEl = mkDiv('t-cmd');
+        pDiv.appendChild(cmdEl);
+        el.appendChild(pDiv);
+        // type command
+        typeStr(cmdEl, row.c, function() {
+          // output
+          timer = setTimeout(function() {
+            var oDiv = mkDiv('t-output whitespace-pre-wrap mb-3');
+            oDiv.innerHTML = row.o;
+            el.appendChild(oDiv);
+            el.scrollTop = el.scrollHeight;
+            li++;
+            timer = setTimeout(next, 400);
+          }, 200);
+        });
+      }
+
+      next();
+    }
+
+    // Start immediately
+    runCycle();
+
+    // language switch
+    var orig = window.setLang;
+    if (typeof orig === 'function') {
+      window.setLang = function(l) {
+        termLang = l;
+        clearTimeout(timer);
+        orig(l);
+        runCycle();
+      };
+    }
+  })();
 })();
 </script>
 
