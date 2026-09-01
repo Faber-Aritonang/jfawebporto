@@ -73,27 +73,27 @@ async function geminiCurate(articles, apiKey) {
 
   const prompt = `Anda adalah kurator berita AI untuk website portfolio.
 
-Analisis artikel-artikel ini dan kembalikan array JSON. UNTUK SETIAP artikel, berikan:
-- index: nomor index artikel
-- score: 0-100 skor relevansi (semakin tinggi = semakin relevan untuk AI implementator)
-- title_id: judul artikel DITERJEMAHKAN ke Bahasa Indonesia yang baik dan benar
-- summary_id: ringkasan 1-2 kalimat dalam Bahasa Indonesia
-- category: salah satu dari ["ai-news", "llm", "computer-vision", "ai-business", "open-source", "regulation"]
+Analisis artikel-artikel ini. KEMBALIKAN array JSON dengan format persis seperti ini:
+[{"index":0,"score":80,"title":"judul Indonesia","summary":"ringkasan Indonesia","category":"ai-news"}]
 
-Aturan scoring:
-- TINGGI (70-100): implementasi AI praktis, tools/framework AI baru, adopsi bisnis AI, update LLM, AI open-source
-- SEDANG (40-69): breakthrough riset AI, diskusi etika AI, analisis industri
-- RENDAH (0-39): opini tanpa substansi, clickbait, konten non-AI
-- Hanya sertakan artikel dengan score >= 40
+Field wajib untuk setiap artikel:
+- index: nomor (angka)
+- score: 0-100 (angka)
+- title: judul DITERJEMAHKAN ke Bahasa Indonesia
+- summary: ringkasan 1-2 kalimat dalam Bahasa Indonesia
+- category: "ai-news" atau "llm" atau "computer-vision" atau "ai-business" atau "open-source" atau "regulation"
 
-Aturan terjemahan:
-- Jika judul/ringkasan asli sudah Bahasa Indonesia, gunakan asli
-- Jika Bahasa Inggris, TERJEMAHKAN ke Bahasa Indonesia yang alami
-- Pertahankan istilah teknis (LLM, GPT, AI, ML) dalam bahasa aslinya
+Scoring:
+- 70-100: AI praktis, tools baru, bisnis AI, LLM update
+- 40-69: riset AI, etika AI, analisis industri
+- 0-39: skip (jangan sertakan)
 
-Kembalikan HANYA array JSON, tanpa formatting markdown.
+Terjemahan:
+- Sudah Indonesia → pakai asli
+- Inggris → TERJEMAHKAN. Pertahankan istilah teknis (LLM, GPT, AI, ML).
 
-Artikel:
+HANYA array JSON. Tanpa markdown. Tanpa penjelasan.
+
 ${articlesText}`;
 
   try {
@@ -129,12 +129,15 @@ ${articlesText}`;
       .map((article, i) => {
         const scoreData = scores.find(s => s.index === i);
         if (!scoreData || scoreData.score < 40) return null;
+        // Gemini returns 'title' and 'summary' (in Indonesian)
+        const translatedTitle = scoreData.title || scoreData.title_id || article.title;
+        const translatedSummary = scoreData.summary || scoreData.summary_id || article.summary;
         return {
           ...article,
-          title: scoreData.title_id || article.title, // Gunakan judul Indonesia
-          summary: scoreData.summary_id || article.summary, // Gunakan ringkasan Indonesia
+          title: translatedTitle,
+          summary: translatedSummary,
           gemini_score: scoreData.score,
-          gemini_summary: scoreData.summary_id,
+          gemini_summary: translatedSummary,
           category: scoreData.category || 'ai-news'
         };
       })
