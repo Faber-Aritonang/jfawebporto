@@ -376,12 +376,15 @@
     <p class="text-gray-400 text-center mb-10 reveal" data-i18n="blog_sub">Berita AI & opini seputar implementasi kecerdasan buatan</p>
 
     <!-- Blog Tabs -->
-    <div class="flex justify-center gap-3 mb-10 reveal">
+    <div class="flex justify-center gap-3 mb-10 reveal flex-wrap">
       <button class="blog-tab glass px-5 py-2.5 rounded-xl text-sm font-semibold border-cyan-400/40 text-cyan-400" data-blog-tab="news">
         📰 Berita Info AI
       </button>
       <button class="blog-tab glass px-5 py-2.5 rounded-xl text-sm font-semibold hover:border-cyan-400 transition" data-blog-tab="opini">
         ✍️ Opini & Tulisan
+      </button>
+      <button class="blog-tab glass px-5 py-2.5 rounded-xl text-sm font-semibold hover:border-cyan-400 transition" data-blog-tab="keseharian">
+        🤖 AI & Keseharian
       </button>
     </div>
 
@@ -397,6 +400,14 @@
     <!-- Opini Tab -->
     <div id="blogOpiniTab" class="hidden">
       <div id="blogOpiniGrid" class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
+        <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
+      </div>
+    </div>
+
+    <!-- AI & Keseharian Tab -->
+    <div id="blogKeseharianTab" class="hidden">
+      <div id="blogKeseharianGrid" class="grid md:grid-cols-2 gap-6 mb-6">
         <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
         <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
       </div>
@@ -593,7 +604,7 @@
       var ts=0;repos.forEach(function(r){ts+=r.stargazers_count;});
       var se=document.getElementById('stat-stars'),pe=document.getElementById('stat-projects');
       if(se)se.textContent=ts+'+';if(pe)pe.textContent=repos.length+'+';
-      renderRepos(repos);renderTechGrid(repos);loadBlogNews();loadBlogOpini();
+      renderRepos(repos);renderTechGrid(repos);loadBlogNews();loadBlogOpini();loadBlogKeseharian();
     })
     .catch(function(e){
       console.error('[Portfolio] Error:', e);
@@ -729,6 +740,40 @@
     });
   }
 
+  /* === BLOG: AI & KESEHARIAN (from API) === */
+  function loadBlogKeseharian() {
+    var grid = document.getElementById('blogKeseharianGrid');
+    if (!grid) return;
+    fetch('/api/blog?category=ai-keseharian&limit=6')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var posts = d.posts || [];
+      if (!posts.length) {
+        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">🤖 Implementasi AI dalam kehidupan sehari-hari. Kunjungi <a href="/admin" class="text-accent hover:underline">Admin Panel</a> untuk upload materi.</div>';
+        return;
+      }
+      grid.innerHTML = posts.map(function(p) {
+        var tags = (p.tags || []).map(function(t) { return '<span class="text-xs bg-white/10 px-2 py-0.5 rounded">' + esc(t) + '</span>'; }).join('');
+        var attCount = p.attachment_count || 0;
+        return '<a href="/blog.html?slug=' + esc(p.slug) + '" target="_blank" class="glass glass-hover rounded-2xl p-6 flex flex-col block">'
+          + '<div class="flex justify-between items-start mb-3">'
+            + '<span class="text-xs font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">🤖 AI & Keseharian</span>'
+            + '<span class="text-gray-500 text-xs">' + new Date(p.created_at).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric' }) + '</span>'
+          + '</div>'
+          + '<h3 class="text-xl font-bold mb-2 leading-tight hover:text-accent transition">' + esc(p.title) + '</h3>'
+          + '<p class="text-sm text-gray-400 flex-1 mb-3">' + esc(p.excerpt || '') + '</p>'
+          + '<div class="flex items-center justify-between mt-auto">'
+            + '<div class="flex gap-1.5 flex-wrap">' + tags + '</div>'
+            + (attCount > 0 ? '<span class="text-xs text-gray-500">📎 ' + attCount + ' file</span>' : '')
+          + '</div>'
+        + '</a>';
+      }).join('');
+    })
+    .catch(function(e) {
+      console.error('[Blog Keseharian] Error:', e);
+    });
+  }
+
   /* === BLOG TAB SWITCHING === */
   try {
     document.querySelectorAll('.blog-tab').forEach(function(tab) {
@@ -739,6 +784,7 @@
         var target = tab.dataset.blogTab;
         document.getElementById('blogNewsTab').classList.toggle('hidden', target !== 'news');
         document.getElementById('blogOpiniTab').classList.toggle('hidden', target !== 'opini');
+        document.getElementById('blogKeseharianTab').classList.toggle('hidden', target !== 'keseharian');
       });
     });
   } catch(e) {}

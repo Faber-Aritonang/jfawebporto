@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Jimmy Faber</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { base: '#050810', accent: '#22d3ee', accent2: '#a855f7' }, fontFamily: { sans: ['Inter','sans-serif'], mono: ['JetBrains Mono','monospace'] } } }
+    }
+  </script>
+  <style>
+    body { background: #050810; }
+    .glass { background: rgba(255,255,255,.04); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.08); }
+    .text-gradient { background: linear-gradient(90deg, #22d3ee, #a855f7); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .prose { line-height: 1.8; }
+    .prose h1 { font-size: 1.5rem; font-weight: 800; margin: 1.5rem 0 0.75rem; }
+    .prose h2 { font-size: 1.25rem; font-weight: 700; margin: 1.25rem 0 0.5rem; color: #22d3ee; }
+    .prose h3 { font-size: 1.1rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+    .prose p { margin: 0.75rem 0; }
+    .prose ul, .prose ol { margin: 0.75rem 0; padding-left: 1.5rem; }
+    .prose li { margin: 0.25rem 0; }
+    .prose code { background: rgba(255,255,255,.08); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9em; font-family: 'JetBrains Mono', monospace; }
+    .prose pre { background: rgba(0,0,0,.3); padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 1rem 0; }
+    .prose pre code { background: none; padding: 0; }
+    .prose blockquote { border-left: 3px solid #22d3ee; padding-left: 1rem; margin: 1rem 0; color: #9ca3af; }
+    .prose a { color: #22d3ee; text-decoration: underline; }
+    .prose strong { font-weight: 700; }
+    .prose em { font-style: italic; }
+    .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 12px; }
+    .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+  </style>
+</head>
+<body class="bg-base text-gray-200 font-sans antialiased min-h-screen">
+
+<div id="loading" class="min-h-screen flex items-center justify-center">
+  <div class="text-center">
+    <div class="text-4xl mb-4">📝</div>
+    <p class="text-gray-400">Memuat postingan...</p>
+  </div>
+</div>
+
+<div id="content" class="hidden max-w-3xl mx-auto px-6 py-12">
+  <a href="/#blog" class="text-accent text-sm hover:underline mb-8 inline-block">← Kembali ke Blog</a>
+  <div id="postBody"></div>
+</div>
+
+<div id="notFound" class="hidden min-h-screen flex items-center justify-center">
+  <div class="text-center">
+    <div class="text-4xl mb-4">🔍</div>
+    <p class="text-gray-400 mb-4">Postingan tidak ditemukan</p>
+    <a href="/#blog" class="text-accent hover:underline">← Kembali ke Blog</a>
+  </div>
+</div>
+
+<script>
+(function() {
+  var params = new URLSearchParams(window.location.search);
+  var slug = params.get('slug');
+  
+  if (!slug) { show('notFound'); return; }
+
+  fetch('/api/blog?slug=' + encodeURIComponent(slug))
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (!d.post) { show('notFound'); return; }
+    renderPost(d.post);
+    show('content');
+  })
+  .catch(function() { show('notFound'); });
+
+  function show(id) {
+    ['loading','content','notFound'].forEach(function(el) {
+      document.getElementById(el).classList.add('hidden');
+    });
+    document.getElementById(id).classList.remove('hidden');
+  }
+
+  function renderPost(post) {
+    var catColors = { 'opini': 'bg-cyan-500/20 text-cyan-400', 'ai-keseharian': 'bg-purple-500/20 text-purple-400', 'tutorial': 'bg-green-500/20 text-green-400', 'review': 'bg-orange-500/20 text-orange-400', 'insight': 'bg-pink-500/20 text-pink-400' };
+    var catNames = { 'opini': 'Opini & Tulisan', 'ai-keseharian': 'AI & Keseharian', 'tutorial': 'Tutorial', 'review': 'Review', 'insight': 'Insight' };
+    var catClass = catColors[post.category] || 'bg-cyan-500/20 text-cyan-400';
+    var catName = catNames[post.category] || post.category;
+    var tags = (post.tags || []).map(function(t) { return '<span class="text-xs bg-white/10 px-2 py-1 rounded-full">' + esc(t) + '</span>'; }).join('');
+
+    var attachmentsHtml = '';
+    if (post.attachments && post.attachments.length > 0) {
+      var fileIcons = { 'application/pdf': '📄', 'application/vnd.ms-powerpoint': '📊', 'application/vnd.openxmlformats-officedocument.presentationml.presentation': '📊', 'video/mp4': '🎬', 'video/webm': '🎬', 'image/jpeg': '🖼️', 'image/png': '🖼️', 'text/plain': '📝', 'application/zip': '📦' };
+
+      var files = post.attachments.map(function(a) {
+        var icon = fileIcons[a.file_type] || '📎';
+        var size = a.file_size ? (a.file_size / 1024 / 1024).toFixed(1) + ' MB' : '';
+        var isVideo = a.file_type && a.file_type.startsWith('video/');
+        var isImage = a.file_type && a.file_type.startsWith('image/');
+        var isPdf = a.file_type === 'application/pdf';
+
+        if (isVideo) {
+          return '<div class="mb-6"><div class="video-container"><video controls preload="metadata"><source src="' + esc(a.file_url) + '" type="' + esc(a.file_type) + '"></video></div><p class="text-sm text-gray-400 mt-2">' + esc(a.file_name) + ' (' + size + ')</p></div>';
+        }
+        if (isImage) {
+          return '<div class="mb-4"><img src="' + esc(a.file_url) + '" alt="' + esc(a.file_name) + '" class="rounded-xl w-full" loading="lazy"><p class="text-sm text-gray-400 mt-1">' + esc(a.file_name) + '</p></div>';
+        }
+        if (isPdf) {
+          return '<div class="glass rounded-xl p-4 mb-3 flex items-center gap-3"><span class="text-2xl">' + icon + '</span><div class="flex-1"><p class="font-medium">' + esc(a.file_name) + '</p><p class="text-xs text-gray-500">' + size + '</p></div><a href="' + esc(a.file_url) + '" target="_blank" class="text-accent hover:underline text-sm font-semibold">⬇️ Download</a></div>';
+        }
+        return '<div class="glass rounded-xl p-4 mb-3 flex items-center gap-3"><span class="text-2xl">' + icon + '</span><div class="flex-1"><p class="font-medium">' + esc(a.file_name) + '</p><p class="text-xs text-gray-500">' + esc(a.file_type) + ' · ' + size + '</p></div><a href="' + esc(a.file_url) + '" target="_blank" class="text-accent hover:underline text-sm font-semibold">⬇️ Download</a></div>';
+      }).join('');
+
+      attachmentsHtml = '<div class="mt-8"><h3 class="text-lg font-bold text-gradient mb-4">📎 Lampiran</h3>' + files + '</div>';
+    }
+
+    document.title = post.title + ' — Jimmy Faber';
+    document.getElementById('postBody').innerHTML =
+      '<span class="text-xs font-mono px-3 py-1 rounded-full ' + catClass + '">' + catName + '</span>' +
+      '<h1 class="text-3xl md:text-4xl font-extrabold mt-4 mb-2 text-gradient">' + esc(post.title) + '</h1>' +
+      '<div class="flex items-center gap-4 text-sm text-gray-500 mb-8">' +
+        '<span>📅 ' + new Date(post.created_at).toLocaleDateString('id-ID', { year:'numeric', month:'long', day:'numeric' }) + '</span>' +
+        '<span>👤 Jimmy Faber</span>' +
+      '</div>' +
+      '<div class="prose text-gray-300">' + renderMarkdown(post.content) + '</div>' +
+      (tags ? '<div class="flex gap-2 flex-wrap mt-8 pt-6 border-t border-white/10">' + tags + '</div>' : '') +
+      attachmentsHtml +
+      '<div class="mt-12 pt-6 border-t border-white/10 text-center"><a href="/#blog" class="text-accent hover:underline">← Kembali ke Blog</a></div>';
+  }
+
+  function renderMarkdown(md) {
+    return md
+      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+      .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
+      .replace(/^- (.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
+      .replace(/\n{2,}/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      .replace(/^(.+)$/gm, function(m) { if (m.match(/^<[hupbolt]/)) return m; return m; })
+      .replace(/^(?!<[hupbolt])((?!^$).+)$/gm, '<p>$1</p>');
+  }
+
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+})();
+</script>
+
+</body>
+</html>

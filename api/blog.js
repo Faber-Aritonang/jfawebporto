@@ -1,10 +1,12 @@
 /**
- * Blog API — Opini Rubrik
+ * Blog API — Opini & AI Keseharian Rubrik
  * 
- * GET /api/blog       → List published posts (public)
- * POST /api/blog      → Create post (admin)
- * PUT /api/blog       → Update post (admin)
- * DELETE /api/blog?id → Delete post (admin)
+ * GET    /api/blog           → List published posts
+ * GET    /api/blog?slug=xxx  → Get single post with attachments
+ * POST   /api/blog           → Create post (admin)
+ * PUT    /api/blog           → Update post (admin)
+ * DELETE /api/blog?id=xxx    → Delete post (admin)
+ * POST   /api/blog/upload    → Upload file attachment (admin)
  */
 
 const { getSupabase } = require('../lib/supabase');
@@ -24,7 +26,6 @@ function slugify(text) {
 }
 
 module.exports = async (req, res) => {
-  // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
@@ -32,12 +33,42 @@ module.exports = async (req, res) => {
 
   try {
     const supabase = getSupabase();
-    const { method, query, body } = req;
+    const { method, query } = req;
+    let body = req.body;
+    if (typeof body === 'string') {
+      try { body = JSON.parse(body); } catch(e) { body = {}; }
+    }
 
-    // === GET: List published posts ===
+    // === GET: List or Get single post ===
     if (method === 'GET') {
-      const { slug, limit = 20, offset = 0 } = query;
-      
+      const { slug, category, limit = 20, offset = 0 } = query;
+
+      if (slug) {
+        // Get single post with attachments
+        const { data: post, error } = await supabase
+          .from('blog_posts')
+          .select('*')
+          .eq('slug', slug)
+          .eq('published', true)
+          .single();
+
+        if (error || !post) {
+          return res.status(404).json({ error: 'Post not found' });
+        }
+
+        // Fetch attachments
+        const { data: attachments } = await supabase
+          .from('blog_attachments')
+          .select('*')
+          .eq('post_id', post.id)
+          .order('created_at', { ascending: true });
+
+        return res.status(200).json({
+          post: { ...post, attachments: attachments || [] }
+        });
+      }
+
+      // List posts
       let q = supabase
         .from('blog_posts')
         .select('*')
@@ -45,36 +76,23 @@ module.exports = async (req, res) => {
         .order('created_at', { ascending: false })
         .range(parseInt(offset), parseInt(offset) + parseInt(limit) - 1);
 
-      if (slug) {
-        q = supabase
-          .from('blog_posts')
-          .select('*')
-          .eq('slug', slug)
-          .eq('published', true)
-          .single();
+      if (category) {
+        q = q.eq('category', category);
       }
 
-      const { data, error } = await q;
+      const { data: posts, error } = await q;
       if (error) throw error;
 
-      // Parse body if it's a string (Vercel sometimes sends string)
-      const posts = Array.isArray(data) ? data.map(p => ({
-        ...p,
-        content: p.content,
-        tags: Array.isArray(p.tags) ? p.tags : []
-      })) : { ...data, tags: Array.isArray(data?.tags) ? data.tags : [] };
-
-      return res.status(200).json({ posts });
+      return res.status(200).json({ posts: posts || [] });
     }
 
-    // === POST: Create post (admin) ===
+    // === POST: Create post ===
     if (method === 'POST') {
       if (!checkAdmin(req)) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
-      const b = typeof body === 'string' ? JSON.parse(body) : body;
-      const { title, content, excerpt, cover_image, category, tags, published } = b;
+      const { title, content, excerpt, cover_image, category, tags, published } = body;
 
       if (!title || !content) {
         return res.status(400).json({ error: 'Title and content required' });
@@ -101,14 +119,13 @@ module.exports = async (req, res) => {
       return res.status(201).json({ post: data });
     }
 
-    // === PUT: Update post (admin) ===
+    // === PUT: Update post ===
     if (method === 'PUT') {
       if (!checkAdmin(req)) {
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
-      const b = typeof body === 'string' ? JSON.parse(body) : body;
-      const { id, title, content, excerpt, cover_image, category, tags, published } = b;
+      const { id, title, content, excerpt, cover_image, category, tags, published } = body;
 
       if (!id) return res.status(400).json({ error: 'Post ID required' });
 
@@ -132,7 +149,7 @@ module.exports = async (req, res) => {
       return res.status(200).json({ post: data });
     }
 
-    // === DELETE: Delete post (admin) ===
+    // === DELETE: Delete post ===
     if (method === 'DELETE') {
       if (!checkAdmin(req)) {
         return res.status(401).json({ error: 'Unauthorized' });
@@ -141,6 +158,9 @@ module.exports = async (req, res) => {
       const { id } = query;
       if (!id) return res.status(400).json({ error: 'Post ID required' });
 
+      // Delete attachments first
+      await supabase.from('blog_attachments').delete().eq('post_id', id);
+      
       const { error } = await supabase
         .from('blog_posts')
         .delete()
