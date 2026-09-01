@@ -376,6 +376,29 @@
   }
   .chat-send:hover { transform: scale(1.05); }
   @media (max-width: 480px) { .chat-window { width: calc(100vw - 32px); right: -8px; } }
+
+  /* Terminal styles */
+  .terminal-body { color: #c9d1d9; }
+  .terminal-body .t-prompt { color: #3fb950; }
+  .terminal-body .t-cmd { color: #58a6ff; }
+  .terminal-body .t-flag { color: #d2a8ff; }
+  .terminal-body .t-output { color: #8b949e; }
+  .terminal-body .t-highlight { color: #f0883e; }
+  .terminal-body .t-success { color: #3fb950; }
+  .terminal-body .t-string { color: #a5d6ff; }
+  .terminal-body .t-comment { color: #484f58; }
+  .terminal-cursor {
+    display: inline-block;
+    width: 8px;
+    height: 1.1em;
+    background: #3fb950;
+    vertical-align: text-bottom;
+    animation: termBlink 1s step-end infinite;
+  }
+  @keyframes termBlink { 50% { opacity: 0; } }
+  .terminal-window {
+    box-shadow: 0 0 40px rgba(34,211,238,.08), 0 8px 32px rgba(0,0,0,.4);
+  }
   </style>
 </head>
 
@@ -545,11 +568,23 @@
   <div class="max-w-6xl mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center reveal"><span class="text-gradient" data-i18n="about_title">Tentang Saya</span></h2>
     <div class="grid md:grid-cols-3 gap-6">
-      <div class="glass glass-hover rounded-2xl p-6 md:col-span-2 reveal">
-        <h3 class="font-mono text-accent mb-3">$ whoami</h3>
-        <p class="text-gray-300 leading-relaxed mb-4" data-i18n="about_p1">Saya Jimmy Faber, seorang AI Implementator yang berfokus pada penerapan teknologi AI ke dalam sistem bisnis nyata. Saya percaya AI bukan sekadar tren, melainkan alat yang mampu mentransformasi cara bisnis beroperasi — lebih cepat, lebih cerdas, lebih efisien.</p>
-        <p class="text-gray-300 leading-relaxed" data-i18n="about_p2">Dengan latar belakang di bidang IT, saya menangani seluruh siklus implementasi: analisis kebutuhan, pengembangan, integrasi API/model, hingga deployment. Tujuan saya adalah memastikan setiap solusi AI memberikan ROI yang terukur dan sustainable.</p>
+      <!-- Terminal Window -->
+      <div class="md:col-span-2 reveal">
+        <div class="terminal-window rounded-xl overflow-hidden shadow-2xl" style="background:#0d1117;border:1px solid rgba(255,255,255,.12);">
+          <!-- Title Bar -->
+          <div class="flex items-center gap-2 px-4 py-2.5" style="background:#161b22;border-bottom:1px solid rgba(255,255,255,.08);">
+            <span class="w-3 h-3 rounded-full bg-red-500"></span>
+            <span class="w-3 h-3 rounded-full bg-yellow-500"></span>
+            <span class="w-3 h-3 rounded-full bg-green-500"></span>
+            <span class="ml-3 text-gray-500 text-xs font-mono">jimmy@portfolio:~</span>
+          </div>
+          <!-- Terminal Body -->
+          <div class="terminal-body p-5 md:p-6 font-mono text-sm leading-relaxed" style="min-height:380px;">
+            <div id="terminalLines"></div>
+          </div>
+        </div>
       </div>
+      <!-- Stats -->
       <div class="space-y-4">
         <div class="glass glass-hover rounded-2xl p-6 text-center reveal">
           <div class="text-3xl font-bold text-accent mb-2" id="stat-projects">20+</div>
@@ -557,10 +592,10 @@
         </div>
         <div class="glass glass-hover rounded-2xl p-6 text-center reveal">
           <div class="text-3xl font-bold text-accent2 mb-2">5+</div>
-          <p class="text-gray-400 text-sm font-mono" data-i18n="stat_years">Years Experience</p>
+          <p class="text-gray-400 text-sm font-mono" data-i18n="stat_years">Tahun Experience</p>
         </div>
         <div class="glass glass-hover rounded-2xl p-6 text-center reveal">
-          <div class="text-3xl font-bold text-accent mb-2" id="stat-stars">100+</div>
+          <div class="text-3xl font-bold text-accent mb-2" id="stat-stars">0+</div>
           <p class="text-gray-400 text-sm font-mono" data-i18n="stat_stars">GitHub Stars</p>
         </div>
       </div>
@@ -1202,6 +1237,101 @@
       });
     };
   } catch(e) { console.error('[Chat] Error:', e); }
+
+  /* === TERMINAL TYPING EFFECT === */
+  try {
+    var terminalLines = document.getElementById('terminalLines');
+    if (terminalLines) {
+      var termLang = (typeof currentLang !== 'undefined') ? currentLang : 'id';
+      var termData = {
+        id: [
+          { cmd: 'whoami', output: '<span class="t-highlight">Jimmy Faber</span> — <span style="color:#3fb950">AI Implementator</span>' },
+          { cmd: 'cat about.txt', output: 'Saya Jimmy Faber, seorang AI Implementator yang berfokus pada\npenerapan teknologi AI ke dalam sistem bisnis nyata.\nSaya percaya AI bukan sekadar tren, melainkan alat yang\nmampu mentransformasi cara bisnis beroperasi — lebih cepat,\nlebih cerdas, lebih efisien.' },
+          { cmd: 'cat experience.txt', output: 'Dengan latar belakang di bidang IT, saya menangani seluruh\nsiklus implementasi: analisis kebutuhan, pengembangan,\nintegrasi API/model, hingga deployment.\nTujuan saya: memastikan setiap solusi AI memberikan\nROI yang terukur dan sustainable.' },
+          { cmd: 'ls skills/', output: '<span class="t-success">Python</span>  <span class="t-highlight">TensorFlow</span>  <span style="color:#a5d6ff">PyTorch</span>  <span class="t-flag">FastAPI</span>  <span style="color:#d2a8ff">Node.js</span>  <span class="t-success">Docker</span>  <span class="t-highlight">LLM</span>  <span style="color:#a5d6ff">RAG</span>  <span class="t-flag">Automation</span>' },
+          { cmd: 'echo $GOAL', output: '<span class="t-string">Membangun sistem AI yang memberikan dampak nyata bagi bisnis</span>' }
+        ],
+        en: [
+          { cmd: 'whoami', output: '<span class="t-highlight">Jimmy Faber</span> — <span style="color:#3fb950">AI Implementator</span>' },
+          { cmd: 'cat about.txt', output: "I'm Jimmy Faber, an AI Implementator focused on applying\nAI technology to real business systems. I believe AI is\nnot just a trend, but a tool that can transform how\nbusinesses operate — faster, smarter, more efficient." },
+          { cmd: 'cat experience.txt', output: "With an IT background, I handle the full implementation\ncycle: requirements analysis, development, API/model\nintegration, to deployment. My goal is to ensure each\nAI solution provides measurable and sustainable ROI." },
+          { cmd: 'ls skills/', output: '<span class="t-success">Python</span>  <span class="t-highlight">TensorFlow</span>  <span style="color:#a5d6ff">PyTorch</span>  <span class="t-flag">FastAPI</span>  <span style="color:#d2a8ff">Node.js</span>  <span class="t-success">Docker</span>  <span class="t-highlight">LLM</span>  <span style="color:#a5d6ff">RAG</span>  <span class="t-flag">Automation</span>' },
+          { cmd: 'echo $GOAL', output: '<span class="t-string">Building AI systems that create real impact for businesses</span>' }
+        ]
+      };
+
+      function runTerminal() {
+        terminalLines.innerHTML = '';
+        var lines = termData[termLang] || termData.id;
+        var i = 0;
+
+        function typeCommand() {
+          if (i >= lines.length) {
+            // Done — add final prompt with cursor
+            var finalLine = document.createElement('div');
+            finalLine.innerHTML = '<span class="t-prompt">jimmy@portfolio:~$ </span><span class="terminal-cursor"></span>';
+            terminalLines.appendChild(finalLine);
+            return;
+          }
+          var line = lines[i];
+          var lineDiv = document.createElement('div');
+          lineDiv.className = 'mb-3';
+          lineDiv.innerHTML = '<span class="t-prompt">jimmy@portfolio:~$ </span>';
+          terminalLines.appendChild(lineDiv);
+
+          // Type command character by character
+          var cmdSpan = document.createElement('span');
+          cmdSpan.className = 't-cmd';
+          lineDiv.appendChild(cmdSpan);
+          var ci = 0;
+          function typeChar() {
+            if (ci < line.cmd.length) {
+              cmdSpan.textContent += line.cmd[ci];
+              ci++;
+              setTimeout(typeChar, 30 + Math.random() * 30);
+            } else {
+              // Command done, show output after short delay
+              setTimeout(function() {
+                var outDiv = document.createElement('div');
+                outDiv.className = 't-output pl-0 whitespace-pre-wrap';
+                outDiv.style.marginLeft = '0';
+                outDiv.innerHTML = line.output;
+                terminalLines.appendChild(outDiv);
+                // Scroll to bottom
+                terminalLines.scrollTop = terminalLines.scrollHeight;
+                i++;
+                setTimeout(typeCommand, 400);
+              }, 200);
+            }
+          }
+          typeChar();
+        }
+
+        // Start typing when visible
+        var termObserver = new IntersectionObserver(function(entries) {
+          entries.forEach(function(entry) {
+            if (entry.isIntersecting) {
+              typeCommand();
+              termObserver.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.2 });
+        termObserver.observe(terminalLines);
+      }
+
+      runTerminal();
+
+      // Re-run on language switch
+      var origSetLang = window.setLang;
+      if (typeof origSetLang === 'function') {
+        window.setLang = function(l) {
+          termLang = l;
+          origSetLang(l);
+          runTerminal();
+        };
+      }
+    }
+  } catch(e) { console.error('[Terminal] Error:', e); }
 })();
 </script>
 
