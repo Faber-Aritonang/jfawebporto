@@ -1,108 +1,137 @@
 # 🚀 JFA Web Portfolio
 
 > **Jimmy Faber — Implementator AI to Your Business System**
+> Website portfolio pribadi dengan **blog backend**, **AI news curation**, dan **admin panel**.
 
-Website portfolio pribadi interaktif yang menampilkan proyek-proyek di bidang **IT & AI**, dibangun dengan teknologi modern dan di-deploy dengan infrastruktur gratis (GitHub + Vercel).
+![Status](https://img.shields.io/badge/status-live-brightgreen) ![Tech](https://img.shields.io/badge/TailwindCSS-v3-38bdf8) ![Backend](https://img.shields.io/badge/Backend-Supabase+Vercel-green)
 
-![Status](https://img.shields.io/badge/status-live-brightgreen) ![Tech](https://img.shields.io/badge/TailwindCSS-v3-38bdf8) ![License](https://img.shields.io/badge/license-MIT-blue)
+## ✨ Fitur
 
-## ✨ Fitur Interaktif
-
-- 🤖 **Portfolio Dinamis** — Data proyek diambil otomatis dari GitHub API (selalu update saat push repo baru)
-- 🌐 **Multi-Bahasa** — Toggle Bahasa Indonesia / English (ter-simpan di localStorage)
+### Portfolio
+- 🤖 **Portfolio Dinamis** — Data proyek diambil dari GitHub API
+- 🌐 **Multi-Bahasa** — Toggle Bahasa Indonesia / English
 - ⌨️ **Typewriter Effect** — Animasi teks pada tagline
 - 🎨 **Glassmorphism UI** — Desain dark futuristik dengan aksen cyan/purple
-- 🧠 **Animated Neural Network** — SVG neural network bergerak dengan animasi pulse
+- 🧠 **Animated Neural Network** — SVG bergerak khas AI
 - 📱 **Fully Responsive** — Mobile-friendly dengan hamburger menu
 - 📬 **Form Kontak** — Terintegrasi dengan Formspree
-- ⚡ **Lightweight** — Single HTML file, tanpa build step
+- 🌙 **Dark/Light Mode** — Toggle tema dengan persistensi
+- ✨ **Particle Cursor Effect** — Efek partikel mengikuti mouse
+- 📊 **Animated Skill Bars** — Progress bar animasi saat scroll
 
-### 🆕 Fitur Baru (v2 — Interaktif)
-
-- 📊 **Scroll Progress Bar** — Indikator progress di bagian atas halaman
-- 🎯 **Active Nav Highlight** — Navbar otomatis highlight section yang sedang aktif
-- 📈 **Animated Skill Bars** — Progress bar animate saat section skills masuk viewport
-- 🔍 **Project Detail Modal** — Klik project card → muncul modal dengan detail lengkap (stars, forks, watchers, topics, dll)
-- 📅 **GitHub Activity Graph** — Visualisasi kontribusi 6 bulan terakhir dalam bentuk heatmap
-- ✨ **Particle Cursor Effect** — Efek partikel mengikuti gerakan mouse (cyan & purple)
-- 🌓 **Dark/Light Mode Toggle** — Toggle tema gelap/terang dengan persistensi localStorage
-- 📝 **Blog dari GitHub** — Blog section otomatis diambil dari deskripsi repo GitHub
-- 🏷️ **Tech Stack Icon Grid** — Grid ikon teknologi berdasarkan bahasa di repo GitHub
+### Blog Backend (NEW)
+- 📰 **Berita Info AI** — RSS feed dari 8+ sumber AI, di-curate otomatis oleh Google Gemini API 2x sehari
+- ✍️ **Opini & Tulisan** — Blog pribadi, ditulis melalui Admin Panel
+- 🔐 **Admin Panel** — Dashboard untuk manage postingan opini (CRUD)
+- ⚡ **Cron Jobs** — Vercel Cron otomatis fetch & curate berita 2x sehari (08:00 & 20:00 WIB)
 
 ## 🛠️ Tech Stack
 
 | Kategori | Teknologi |
 |---|---|
 | Frontend | HTML5, Tailwind CSS (CDN), Vanilla JavaScript |
-| Font | Inter, JetBrains Mono |
-| API | GitHub REST API (repos, events) |
-| Form | Formspree |
+| Backend | Vercel Serverless Functions |
+| Database | Supabase (PostgreSQL) |
+| AI Curation | Google Gemini API (gemini-2.0-flash) |
+| RSS | rss-parser npm |
 | Hosting | Vercel |
 | Version Control | Git & GitHub |
-
-## 🌍 Live Demo
-
-🔗 **[jfawebporto.vercel.app](https://jfawebporto.vercel.app)**
 
 ## 📂 Struktur Proyek
 
 ```
 jfawebporto/
-└── index.html    # Seluruh website (HTML + CSS + JS)
+├── index.html              # Portfolio website (HTML + CSS + JS)
+├── admin.html              # Blog admin panel
+├── package.json            # Dependencies
+├── vercel.json             # Vercel config (cron, rewrites)
+├── .env.example            # Environment variables template
+├── api/
+│   ├── blog.js             # CRUD API untuk opini posts
+│   ├── news.js             # API untuk fetch curated news
+│   └── cron/
+│       └── fetch-news.js   # Cron: RSS fetch + Gemini curation
+├── lib/
+│   └── supabase.js         # Supabase client helper
+├── scripts/
+│   └── setup-db.js         # Database schema setup script
+└── README.md
 ```
 
-## ⚙️ Kustomisasi
+## ⚙️ Setup
 
-Bagian yang perlu diganti ditandai dengan komentar `CUSTOMIZATION` di dalam `index.html`:
+### 1. Supabase
+1. Buat akun di [supabase.com](https://supabase.com)
+2. Buat project baru
+3. Buka SQL Editor, jalankan SQL dari `scripts/setup-db.js` (lihat komentar di file)
+4. Copy `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_KEY` dari Settings → API
 
-1. **Foto profil** — ganti avatar inisial dengan `<img>`
-2. **Username GitHub** — ganti `USERNAME` di JavaScript
-3. **Tech stack** — sesuaikan skill di section About (atau biarkan otomatis dari GitHub)
-4. **Link sosial media** — Email, Telegram Bot, Instagram, LinkedIn
-5. **Formspree ID** — daftar di [formspree.io](https://formspree.io), ganti `YOUR_FORMSPREE_ID`
+### 2. Google Gemini API
+1. Buka [Google AI Studio](https://aistudio.google.com/apikey)
+2. Buat API key baru
+3. Copy key-nya
+
+### 3. Environment Variables
+Buat file `.env` (atau set di Vercel Dashboard → Settings → Environment Variables):
+
+```env
+SUPABASE_URL=https://xxx.supabase.co
+SUPABASE_ANON_KEY=eyJxxx...
+SUPABASE_SERVICE_KEY=eyJxxx...
+GEMINI_API_KEY=AIza...
+CRON_SECRET=your-random-secret
+ADMIN_PASSWORD=your-secure-password
+```
+
+### 4. Deploy
+```bash
+git add .
+git commit -m "feat: blog backend with AI curation"
+git push origin main
+```
+
+### 5. Set Vercel Cron Secret
+Di Vercel Dashboard → Settings → Environment Variables:
+- Tambah `CRON_SECRET` (bisa random string)
+- Vercel Cron otomatis menggunakan ini untuk autentikasi
+
+## 📊 How It Works
+
+### Berita Info AI (Otomatis)
+```
+RSS Feeds (8 sumber) → fetch-news.js → Gemini API (curation) → Supabase → /api/news → Frontend
+        ↑                                                                   
+   Vercel Cron (2x/day: 08:00 & 20:00 WIB)
+```
+
+### Opini & Tulisan (Manual)
+```
+Admin Panel (/admin) → /api/blog (POST) → Supabase → /api/blog (GET) → Frontend
+```
+
+## 🌍 Live Demo
+
+🔗 **[jfawebporto.vercel.app](https://jfawebporto.vercel.app)**
+🔐 **[jfawebporto.vercel.app/admin](https://jfawebporto.vercel.app/admin)** — Admin panel
+
+## 📝 Customization
+
+### RSS Feeds
+Edit array `RSS_FEEDS` di `api/cron/fetch-news.js` untuk menambah/mengganti sumber berita.
+
+### Blog Categories
+Kategori berita: `ai-news`, `llm`, `computer-vision`, `ai-business`, `open-source`, `regulation`
+Kategori opini: `opini`, `tutorial`, `review`, `insight`
 
 ## 🚀 Deployment
 
-Website otomatis ter-deploy ke Vercel setiap kali ada push ke branch `main`:
+Website otomatis ter-deploy ke Vercel setiap push ke `main`. Cron job otomatis aktif di production.
 
 ```bash
 git add .
 git commit -m "update konten"
 git push origin main
 ```
-
-## 📦 Fitur Interaktif — Cara Kerja
-
-### Scroll Progress Bar
-Thin gradient bar di top yang menunjukkan seberapa jauh user telah scroll halaman.
-
-### Active Nav Highlight
-Menggunakan `IntersectionObserver` untuk mendeteksi section aktif dan highlight link navbar yang sesuai.
-
-### Animated Skill Bars
-Progress bar beranimasi dari 0 ke angka sebenarnya saat section skills pertama kali masuk viewport. Menggunakan `IntersectionObserver` + CSS transitions.
-
-### Project Detail Modal
-Klik pada project card akan membuka modal dengan informasi lengkap:
-- Stars, Forks, Watchers, Issues
-- Tanggal dibuat & terakhir update
-- Ukuran repo, license, topics
-- Link ke GitHub & Live Demo
-
-### GitHub Activity Graph
-Mengambil data dari GitHub Events API (`/users/{username}/events/public`) dan menampilkan heatmap kontribusi 26 minggu terakhir. Waktu update, size, dll.
-
-### Particle Cursor Effect
-Canvas-based particles yang mengikuti gerakan mouse dengan warna cyan & purple. Partikel mengecil dan fade out seiring waktu.
-
-### Dark/Light Mode
-Toggle tema yang tersimpan di `localStorage`. Semua glassmorphism, text colors, dan background berubah secara transisi.
-
-### Blog dari GitHub
-Blog section otomatis mengambil 4 repo terbaru yang memiliki deskripsi, menampilkannya sebagai kartu artikel dengan kategori, waktu update, dan link ke GitHub.
-
-### Tech Stack Icon Grid
-Grid ikon teknologi yang di-generate otomatis dari bahasa pemrograman di seluruh repo GitHub, diurutkan berdasarkan jumlah repo.
 
 ## 📫 Kontak
 

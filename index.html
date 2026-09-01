@@ -206,6 +206,12 @@
       transform: translateY(-4px) scale(1.1);
       filter: drop-shadow(0 0 12px rgba(34,211,238,.4));
     }
+    .blog-tab.active {
+      border-color: rgba(34,211,238,.4);
+      color: #22d3ee;
+    }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
   </style>
 </head>
 
@@ -366,10 +372,34 @@
 <!-- BLOG -->
 <section id="blog" class="relative z-10 py-24 px-6">
   <div class="max-w-6xl mx-auto">
-    <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center reveal"><span class="text-gradient" data-i18n="blog_title">Blog & Artikel</span></h2>
-    <div class="grid md:grid-cols-2 gap-6 mb-10 reveal" id="blogGrid">
-      <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
-      <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
+    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center reveal"><span class="text-gradient" data-i18n="blog_title">Blog & Artikel</span></h2>
+    <p class="text-gray-400 text-center mb-10 reveal" data-i18n="blog_sub">Berita AI & opini seputar implementasi kecerdasan buatan</p>
+
+    <!-- Blog Tabs -->
+    <div class="flex justify-center gap-3 mb-10 reveal">
+      <button class="blog-tab glass px-5 py-2.5 rounded-xl text-sm font-semibold border-cyan-400/40 text-cyan-400" data-blog-tab="news">
+        📰 Berita Info AI
+      </button>
+      <button class="blog-tab glass px-5 py-2.5 rounded-xl text-sm font-semibold hover:border-cyan-400 transition" data-blog-tab="opini">
+        ✍️ Opini & Tulisan
+      </button>
+    </div>
+
+    <!-- Berita Info Tab -->
+    <div id="blogNewsTab">
+      <div id="blogNewsGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+        <div class="glass rounded-2xl p-6 loading-skeleton h-64"></div>
+        <div class="glass rounded-2xl p-6 loading-skeleton h-64"></div>
+        <div class="glass rounded-2xl p-6 loading-skeleton h-64"></div>
+      </div>
+    </div>
+
+    <!-- Opini Tab -->
+    <div id="blogOpiniTab" class="hidden">
+      <div id="blogOpiniGrid" class="grid md:grid-cols-2 gap-6 mb-6">
+        <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
+        <div class="glass rounded-2xl p-6 loading-skeleton h-48"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -431,6 +461,7 @@
 (function() {
   'use strict';
   var USERNAME = 'Faber-Aritonang';
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
   /* === REVEAL: JS adds .reveal-hidden, observer swaps to .reveal-visible === */
   document.querySelectorAll('.reveal').forEach(function(el) {
@@ -528,8 +559,8 @@
 
   /* === LANG === */
   var T={
-    en:{nav_about:"About",nav_portfolio:"Portfolio",nav_skills:"Skills",nav_blog:"Blog",nav_contact:"Contact",hero_desc:"Helping businesses adopt artificial intelligence — from idea, integration, to production systems with real impact.",hero_cta1:"View Portfolio",hero_cta2:"Contact Me",about_title:"About Me",about_p1:"I'm Jimmy Faber, an AI Implementator focused on applying AI technology to real business systems. I believe AI is not just a trend, but a tool that can transform how businesses operate — faster, smarter, more efficient.",about_p2:"With an IT background, I handle the full implementation cycle: requirements analysis, development, API/model integration, to deployment. My goal is to ensure each AI solution provides measurable and sustainable ROI.",skills_title:"Skills & Technologies",stat_projects:"AI Projects",stat_years:"Years Experience",stat_stars:"GitHub Stars",port_title:"Portfolio",port_sub:"Auto-fetched from GitHub — always up to date",filter_all:"All",filter_python:"Python",filter_js:"JavaScript",filter_ai:"AI/ML",blog_title:"Blog & Articles",contact_title:"Contact Me",c_email:"Email",f_name:"Full Name",f_email:"Email",f_msg:"Your message...",f_send:"Send Message 🚀",typewriter:["Implementator AI to Your Business System","AI • Data • Automation"]},
-    id:{nav_about:"Tentang",nav_portfolio:"Portfolio",nav_skills:"Skills",nav_blog:"Blog",nav_contact:"Kontak",hero_desc:"Membantu bisnis mengadopsi kecerdasan buatan — dari ide, integrasi, hingga sistem produksi yang berdampak nyata.",hero_cta1:"Lihat Portfolio",hero_cta2:"Hubungi Saya",about_title:"Tentang Saya",about_p1:"Saya Jimmy Faber, seorang AI Implementator yang berfokus pada penerapan teknologi AI ke dalam sistem bisnis nyata. Saya percaya AI bukan sekadar tren, melainkan alat yang mampu mentransformasi cara bisnis beroperasi — lebih cepat, lebih cerdas, lebih efisien.",about_p2:"Dengan latar belakang di bidang IT, saya menangani seluruh siklus implementasi: analisis kebutuhan, pengembangan, integrasi API/model, hingga deployment. Tujuan saya adalah memastikan setiap solusi AI memberikan ROI yang terukur dan sustainable.",skills_title:"Keahlian & Teknologi",stat_projects:"AI Projects",stat_years:"Tahun Experience",stat_stars:"GitHub Stars",port_title:"Portfolio",port_sub:"Data otomatis dari GitHub — selalu terbaru",filter_all:"Semua",filter_python:"Python",filter_js:"JavaScript",filter_ai:"AI/ML",blog_title:"Blog & Artikel",contact_title:"Hubungi Saya",c_email:"Email",f_name:"Nama Lengkap",f_email:"Email",f_msg:"Pesan Anda...",f_send:"Kirim Pesan 🚀",typewriter:["Implementator AI to Your Business System","AI • Data • Automation"]}
+    en:{nav_about:"About",nav_portfolio:"Portfolio",nav_skills:"Skills",nav_blog:"Blog",nav_contact:"Contact",hero_desc:"Helping businesses adopt artificial intelligence — from idea, integration, to production systems with real impact.",hero_cta1:"View Portfolio",hero_cta2:"Contact Me",about_title:"About Me",about_p1:"I'm Jimmy Faber, an AI Implementator focused on applying AI technology to real business systems. I believe AI is not just a trend, but a tool that can transform how businesses operate — faster, smarter, more efficient.",about_p2:"With an IT background, I handle the full implementation cycle: requirements analysis, development, API/model integration, to deployment. My goal is to ensure each AI solution provides measurable and sustainable ROI.",skills_title:"Skills & Technologies",stat_projects:"AI Projects",stat_years:"Years Experience",stat_stars:"GitHub Stars",port_title:"Portfolio",port_sub:"Auto-fetched from GitHub — always up to date",filter_all:"All",filter_python:"Python",filter_js:"JavaScript",filter_ai:"AI/ML",blog_title:"Blog & Articles",blog_sub:"AI news & opinions on artificial intelligence implementation",contact_title:"Contact Me",c_email:"Email",f_name:"Full Name",f_email:"Email",f_msg:"Your message...",f_send:"Send Message 🚀",typewriter:["Implementator AI to Your Business System","AI • Data • Automation"]},
+    id:{nav_about:"Tentang",nav_portfolio:"Portfolio",nav_skills:"Skills",nav_blog:"Blog",nav_contact:"Kontak",hero_desc:"Membantu bisnis mengadopsi kecerdasan buatan — dari ide, integrasi, hingga sistem produksi yang berdampak nyata.",hero_cta1:"Lihat Portfolio",hero_cta2:"Hubungi Saya",about_title:"Tentang Saya",about_p1:"Saya Jimmy Faber, seorang AI Implementator yang berfokus pada penerapan teknologi AI ke dalam sistem bisnis nyata. Saya percaya AI bukan sekadar tren, melainkan alat yang mampu mentransformasi cara bisnis beroperasi — lebih cepat, lebih cerdas, lebih efisien.",about_p2:"Dengan latar belakang di bidang IT, saya menangani seluruh siklus implementasi: analisis kebutuhan, pengembangan, integrasi API/model, hingga deployment. Tujuan saya adalah memastikan setiap solusi AI memberikan ROI yang terukur dan sustainable.",skills_title:"Keahlian & Teknologi",stat_projects:"AI Projects",stat_years:"Tahun Experience",stat_stars:"GitHub Stars",port_title:"Portfolio",port_sub:"Data otomatis dari GitHub — selalu terbaru",filter_all:"Semua",filter_python:"Python",filter_js:"JavaScript",filter_ai:"AI/ML",blog_title:"Blog & Artikel",blog_sub:"Berita AI & opini seputar implementasi kecerdasan buatan",contact_title:"Hubungi Saya",c_email:"Email",f_name:"Nama Lengkap",f_email:"Email",f_msg:"Pesan Anda...",f_send:"Kirim Pesan 🚀",typewriter:["Implementator AI to Your Business System","AI • Data • Automation"]}
   };
   var lang=localStorage.getItem('lang')||'id';
   function setLang(l){if(!T[l])l='id';lang=l;localStorage.setItem('lang',l);var t=T[l];document.querySelectorAll('[data-i18n]').forEach(function(e){if(t[e.dataset.i18n])e.textContent=t[e.dataset.i18n];});document.querySelectorAll('[data-i18n-ph]').forEach(function(e){if(t[e.dataset.i18nPh])e.placeholder=t[e.dataset.i18nPh];});startTW();}
@@ -562,7 +593,7 @@
       var ts=0;repos.forEach(function(r){ts+=r.stargazers_count;});
       var se=document.getElementById('stat-stars'),pe=document.getElementById('stat-projects');
       if(se)se.textContent=ts+'+';if(pe)pe.textContent=repos.length+'+';
-      renderRepos(repos);renderTechGrid(repos);renderBlog(repos);
+      renderRepos(repos);renderTechGrid(repos);loadBlogNews();loadBlogOpini();
     })
     .catch(function(e){
       console.error('[Portfolio] Error:', e);
@@ -628,22 +659,89 @@
     g.innerHTML=s.map(function(e){return'<div class="tech-icon glass rounded-xl px-4 py-3 flex items-center gap-2 text-sm" title="'+e[1]+' repos"><span class="text-lg">'+(TECH_ICONS[e[0]]||'📦')+'</span><span class="font-medium">'+e[0]+'</span><span class="text-xs text-gray-500">('+e[1]+')</span></div>';}).join('');
   }
 
-  /* === BLOG === */
-  function renderBlog(repos){
-    var g=document.getElementById('blogGrid');if(!g)return;
-    var br=repos.filter(function(r){return r.description&&r.description.length>10;}).sort(function(a,b){return new Date(b.updated_at)-new Date(a.updated_at);}).slice(0,4);
-    if(!br.length){g.innerHTML='<div class="glass rounded-2xl p-6 text-center text-gray-400 col-span-2">📝 Kunjungi <a href="https://github.com/'+USERNAME+'" class="text-accent hover:underline">GitHub</a></div>';return;}
-    var cats=['📝 AI Implementation','🔧 Technical','🚀 Project','📊 Data Science'];
-    g.innerHTML=br.map(function(r,i){
-      var tA=function(){var s=Math.floor((new Date()-new Date(r.updated_at))/1000);var iv=[{l:'year',s:31536000},{l:'month',s:2592000},{l:'week',s:604800},{l:'day',s:86400},{l:'hour',s:3600},{l:'minute',s:60}];for(var j=0;j<iv.length;j++){var c=Math.floor(s/iv[j].s);if(c>0)return c+' '+iv[j].l+(c>1?'s':'')+' ago';}return 'just now';};
-      return '<a href="'+r.html_url+'" target="_blank" rel="noopener noreferrer" class="glass glass-hover rounded-2xl p-6 flex flex-col blog-card-link block">'
-        +'<div class="flex justify-between items-start mb-3"><span class="text-accent font-mono text-xs">'+cats[i%4]+'</span><span class="text-gray-500 text-xs">'+tA()+'</span></div>'
-        +'<h3 class="text-xl font-bold mb-3 leading-tight hover:text-accent transition">'+r.name+'</h3>'
-        +'<p class="text-sm text-gray-400 flex-1 mb-4">'+r.description+'</p>'
-        +'<div class="flex gap-2 flex-wrap mt-auto">'+(r.language?'<span class="text-xs bg-white/10 px-2 py-1 rounded">'+r.language+'</span>':'')+'<span class="text-xs bg-white/10 px-2 py-1 rounded">⭐ '+r.stargazers_count+'</span></div>'
-      +'</a>';
-    }).join('');
+  /* === BLOG: BERITA INFO (from API) === */
+  function loadBlogNews() {
+    var grid = document.getElementById('blogNewsGrid');
+    if (!grid) return;
+    fetch('/api/news?limit=6')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var articles = d.articles || [];
+      if (!articles.length) {
+        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">📰 Berita AI akan otomatis diupdate 2x sehari.</div>';
+        return;
+      }
+      grid.innerHTML = articles.map(function(a) {
+        var scoreColor = (a.gemini_score||0) >= 70 ? 'text-green-400' : (a.gemini_score||0) >= 50 ? 'text-yellow-400' : 'text-gray-400';
+        var catColors = { 'ai-news': 'bg-cyan-500/20 text-cyan-400', 'llm': 'bg-purple-500/20 text-purple-400', 'computer-vision': 'bg-pink-500/20 text-pink-400', 'ai-business': 'bg-green-500/20 text-green-400', 'open-source': 'bg-orange-500/20 text-orange-400', 'regulation': 'bg-red-500/20 text-red-400' };
+        var catClass = catColors[a.category] || 'bg-cyan-500/20 text-cyan-400';
+        var timeAgo = function() { var s = Math.floor((new Date() - new Date(a.published_at || a.fetched_at)) / 1000); var iv = [{l:'hari',s:86400},{l:'jam',s:3600},{l:'menit',s:60}]; for(var j=0;j<iv.length;j++){var c=Math.floor(s/iv[j].s);if(c>0)return c+' '+iv[j].l+' lalu';} return 'baru saja'; };
+        return '<a href="' + esc(a.url) + '" target="_blank" rel="noopener noreferrer" class="glass glass-hover rounded-2xl p-6 flex flex-col block">
+          <div class="flex justify-between items-start mb-3">
+            <span class="text-xs font-mono px-2 py-0.5 rounded ' + catClass + '">' + esc(a.category || 'ai-news') + '</span>
+            <span class="text-gray-500 text-xs">' + timeAgo() + '</span>
+          </div>
+          <h3 class="text-lg font-bold mb-2 leading-tight hover:text-accent transition line-clamp-2">' + esc(a.title) + '</h3>
+          <p class="text-sm text-gray-400 flex-1 mb-3 line-clamp-3">' + esc(a.gemini_summary || a.summary || '') + '</p>
+          <div class="flex items-center justify-between mt-auto">
+            <span class="text-xs text-gray-500">' + esc(a.source || '') + '</span>
+            <span class="text-xs ' + scoreColor + '">⭐ ' + (a.gemini_score || '?') + '</span>
+          </div>
+        </a>';
+      }).join('');
+    })
+    .catch(function(e) {
+      console.error('[Blog News] Error:', e);
+      grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">⚠️ Gagal memuat berita.</div>';
+    });
   }
+
+  /* === BLOG: OPINI (from API) === */
+  function loadBlogOpini() {
+    var grid = document.getElementById('blogOpiniGrid');
+    if (!grid) return;
+    fetch('/api/blog?limit=6')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var posts = d.posts || [];
+      if (!posts.length) {
+        grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">✍️ Belum ada tulisan opini. Kunjungi <a href="/admin" class="text-accent hover:underline">Admin Panel</a> untuk mulai menulis.</div>';
+        return;
+      }
+      grid.innerHTML = posts.map(function(p) {
+        var catColors = { 'opini': 'bg-cyan-500/20 text-cyan-400', 'tutorial': 'bg-green-500/20 text-green-400', 'review': 'bg-purple-500/20 text-purple-400', 'insight': 'bg-orange-500/20 text-orange-400' };
+        var catClass = catColors[p.category] || 'bg-cyan-500/20 text-cyan-400';
+        var tags = (p.tags || []).map(function(t) { return '<span class="text-xs bg-white/10 px-2 py-0.5 rounded">' + esc(t) + '</span>'; }).join('');
+        return '<div class="glass glass-hover rounded-2xl p-6 flex flex-col cursor-pointer" onclick="window.open(\'/blog/' + esc(p.slug) + '\', \"_blank\")">' +
+          '<div class="flex justify-between items-start mb-3">' +
+            '<span class="text-xs font-mono px-2 py-0.5 rounded ' + catClass + '">' + esc(p.category || 'opini') + '</span>' +
+            '<span class="text-gray-500 text-xs">' + new Date(p.created_at).toLocaleDateString('id-ID', { year:'numeric', month:'short', day:'numeric' }) + '</span>' +
+          '</div>' +
+          '<h3 class="text-xl font-bold mb-2 leading-tight hover:text-accent transition">' + esc(p.title) + '</h3>' +
+          '<p class="text-sm text-gray-400 flex-1 mb-3">' + esc(p.excerpt || '') + '</p>' +
+          '<div class="flex gap-1.5 flex-wrap mt-auto">' + tags + '</div>' +
+        '</div>';
+      }).join('');
+    })
+    .catch(function(e) {
+      console.error('[Blog Opini] Error:', e);
+      grid.innerHTML = '<div class="glass rounded-2xl p-8 text-center text-gray-400 col-span-full">⚠️ Gagal memuat tulisan.</div>';
+    });
+  }
+
+  /* === BLOG TAB SWITCHING === */
+  try {
+    document.querySelectorAll('.blog-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.blog-tab').forEach(function(t) { t.classList.remove('text-cyan-400', 'border-cyan-400/40'); t.style.borderColor = '';
+        });
+        tab.classList.add('text-cyan-400', 'border-cyan-400/40');
+        var target = tab.dataset.blogTab;
+        document.getElementById('blogNewsTab').classList.toggle('hidden', target !== 'news');
+        document.getElementById('blogOpiniTab').classList.toggle('hidden', target !== 'opini');
+      });
+    });
+  } catch(e) {}
 
   /* === FILTER === */
   try{

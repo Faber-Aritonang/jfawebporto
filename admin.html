@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Blog Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    body { background: #0a0e1a; font-family: 'Inter', sans-serif; }
+    .glass { background: rgba(255,255,255,.04); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,.08); }
+    .text-gradient { background: linear-gradient(90deg, #22d3ee, #a855f7); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .btn-glow { background: linear-gradient(90deg, #0891b2, #7c3aed); transition: all .3s ease; }
+    .btn-glow:hover { box-shadow: 0 0 20px rgba(34,211,238,.4); transform: translateY(-1px); }
+    .btn-danger { background: linear-gradient(90deg, #dc2626, #991b1b); }
+    .btn-danger:hover { box-shadow: 0 0 20px rgba(220,38,38,.4); }
+    textarea { font-family: 'JetBrains Mono', monospace; }
+    .editor-content { min-height: 300px; }
+  </style>
+</head>
+<body class="min-h-screen text-gray-200">
+
+<!-- LOGIN -->
+<div id="loginPage" class="min-h-screen flex items-center justify-center px-4">
+  <div class="glass rounded-2xl p-8 w-full max-w-md text-center">
+    <h1 class="text-2xl font-bold mb-2"><span class="text-gradient">Blog Admin</span></h1>
+    <p class="text-gray-400 text-sm mb-6 font-mono">// Jimmy Faber Blog Manager</p>
+    <div class="space-y-4">
+      <input type="password" id="password" placeholder="Admin password"
+        class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition font-mono"
+        onkeypress="if(event.key==='Enter')login()">
+      <button onclick="login()" class="btn-glow w-full py-3 rounded-xl font-semibold">
+        Masuk 🔐
+      </button>
+      <p id="loginError" class="text-red-400 text-sm hidden">Password salah</p>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden max-w-6xl mx-auto px-4 py-8">
+  <header class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-2xl font-bold"><span class="text-gradient">Blog Manager</span></h1>
+      <p class="text-gray-400 text-sm">Kelola postingan Opini & lihat Berita AI</p>
+    </div>
+    <div class="flex gap-3">
+      <button onclick="showTab('posts')" id="tabPosts" class="glass px-4 py-2 rounded-xl text-sm font-semibold text-cyan-400 border-cyan-400/40">
+        ✍️ Opini
+      </button>
+      <button onclick="showTab('news')" id="tabNews" class="glass px-4 py-2 rounded-xl text-sm font-semibold hover:border-cyan-400 transition">
+        📰 Berita AI
+      </button>
+      <button onclick="showTab('new')" id="tabNew" class="btn-glow px-4 py-2 rounded-xl text-sm font-semibold">
+        + Tulis Baru
+      </button>
+      <button onclick="logout()" class="glass px-4 py-2 rounded-xl text-sm text-red-400 hover:border-red-400 transition">
+        Logout
+      </button>
+    </div>
+  </header>
+
+  <!-- POSTS LIST -->
+  <div id="postsTab">
+    <div id="postsList" class="space-y-3"></div>
+  </div>
+
+  <!-- NEWS LIST -->
+  <div id="newsTab" class="hidden">
+    <div id="newsList" class="space-y-3"></div>
+  </div>
+
+  <!-- EDITOR -->
+  <div id="editorTab" class="hidden">
+    <div class="glass rounded-2xl p-6 max-w-4xl mx-auto">
+      <input type="hidden" id="editId">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-mono text-cyan-400 mb-1">Judul</label>
+          <input type="text" id="editTitle" placeholder="Judul postingan..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-mono text-cyan-400 mb-1">Kategori</label>
+            <select id="editCategory" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition">
+              <option value="opini">Opini</option>
+              <option value="tutorial">Tutorial</option>
+              <option value="review">Review</option>
+              <option value="insight">Insight</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-mono text-cyan-400 mb-1">Tags (koma)</label>
+            <input type="text" id="editTags" placeholder="AI, LLM, Python"
+              class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition">
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-mono text-cyan-400 mb-1">Excerpt (ringkasan singkat)</label>
+          <textarea id="editExcerpt" rows="2" placeholder="Ringkasan singkat..."
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-mono text-cyan-400 mb-1">Konten (Markdown)</label>
+          <textarea id="editContent" rows="15" placeholder="Tulis konten postingan di sini... Support **bold**, *italic*, `code`, ## heading, - list"
+            class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-cyan-400 transition resize-y editor-content font-mono text-sm"></textarea>
+        </div>
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" id="editPublished" checked class="w-4 h-4 accent-cyan-400">
+            <span class="text-sm">Publish langsung</span>
+          </label>
+          <div class="flex-1"></div>
+          <button onclick="savePost()" class="btn-glow px-6 py-2 rounded-xl font-semibold text-sm">
+            💾 Simpan
+          </button>
+          <button onclick="showTab('posts')" class="glass px-6 py-2 rounded-xl text-sm hover:border-cyan-400 transition">
+            Batal
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var AUTH_TOKEN = localStorage.getItem('blog_admin_token') || '';
+
+/* === AUTH === */
+function login() {
+  var pw = document.getElementById('password').value;
+  fetch('/api/blog?limit=1', {
+    headers: { 'Authorization': 'Bearer ' + pw }
+  }).then(function(r) {
+    if (r.ok) {
+      AUTH_TOKEN = pw;
+      localStorage.setItem('blog_admin_token', pw);
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      loadPosts();
+    } else {
+      document.getElementById('loginError').classList.remove('hidden');
+    }
+  }).catch(function() {
+    document.getElementById('loginError').classList.remove('hidden');
+  });
+}
+
+function logout() {
+  AUTH_TOKEN = '';
+  localStorage.removeItem('blog_admin_token');
+  location.reload();
+}
+
+// Auto-login if token exists
+if (AUTH_TOKEN) {
+  fetch('/api/blog?limit=1', {
+    headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN }
+  }).then(function(r) {
+    if (r.ok) {
+      document.getElementById('loginPage').classList.add('hidden');
+      document.getElementById('dashboard').classList.remove('hidden');
+      loadPosts();
+    }
+  });
+}
+
+/* === TABS === */
+function showTab(tab) {
+  document.getElementById('postsTab').classList.add('hidden');
+  document.getElementById('newsTab').classList.add('hidden');
+  document.getElementById('editorTab').classList.add('hidden');
+  document.getElementById('tabPosts').classList.remove('text-cyan-400', 'border-cyan-400/40');
+  document.getElementById('tabNews').classList.remove('text-cyan-400', 'border-cyan-400/40');
+
+  if (tab === 'posts') {
+    document.getElementById('postsTab').classList.remove('hidden');
+    document.getElementById('tabPosts').classList.add('text-cyan-400', 'border-cyan-400/40');
+  } else if (tab === 'news') {
+    document.getElementById('newsTab').classList.remove('hidden');
+    document.getElementById('tabNews').classList.add('text-cyan-400', 'border-cyan-400/40');
+    loadNews();
+  } else if (tab === 'new') {
+    document.getElementById('editorTab').classList.remove('hidden');
+    document.getElementById('editId').value = '';
+    document.getElementById('editTitle').value = '';
+    document.getElementById('editContent').value = '';
+    document.getElementById('editExcerpt').value = '';
+    document.getElementById('editTags').value = '';
+    document.getElementById('editCategory').value = 'opini';
+    document.getElementById('editPublished').checked = true;
+  }
+}
+
+/* === POSTS === */
+function loadPosts() {
+  fetch('/api/blog?limit=50', {
+    headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN }
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    var list = document.getElementById('postsList');
+    var posts = d.posts || [];
+    if (!posts.length) {
+      list.innerHTML = '<div class="glass rounded-xl p-8 text-center text-gray-400">Belum ada postingan. Klik "+ Tulis Baru" untuk mulai.</div>';
+      return;
+    }
+    list.innerHTML = posts.map(function(p) {
+      return '<div class="glass rounded-xl p-4 flex items-center gap-4">' +
+        '<div class="flex-1">' +
+          '<div class="flex items-center gap-2 mb-1">' +
+            '<span class="text-xs font-mono px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400">' + p.category + '</span>' +
+            (p.published ? '<span class="text-xs text-green-400">● Published</span>' : '<span class="text-xs text-yellow-400">● Draft</span>') +
+          '</div>' +
+          '<h3 class="font-semibold">' + esc(p.title) + '</h3>' +
+          '<p class="text-sm text-gray-400 truncate">' + esc(p.excerpt || '') + '</p>' +
+          '<p class="text-xs text-gray-500 mt-1">' + new Date(p.created_at).toLocaleDateString('id-ID') + '</p>' +
+        '</div>' +
+        '<div class="flex gap-2">' +
+          '<button onclick="editPost(\'' + p.id + '\')" class="glass px-3 py-1.5 rounded-lg text-xs hover:border-cyan-400 transition">✏️ Edit</button>' +
+          '<button onclick="deletePost(\'' + p.id + '\')" class="glass px-3 py-1.5 rounded-lg text-xs text-red-400 hover:border-red-400 transition">🗑️</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  });
+}
+
+/* === NEWS === */
+function loadNews() {
+  fetch('/api/news?limit=30').then(function(r) { return r.json(); }).then(function(d) {
+    var list = document.getElementById('newsList');
+    var articles = d.articles || [];
+    if (!articles.length) {
+      list.innerHTML = '<div class="glass rounded-xl p-8 text-center text-gray-400">Belum ada berita. Cron job akan mengambil berita 2x sehari.</div>';
+      return;
+    }
+    list.innerHTML = articles.map(function(a) {
+      var scoreColor = a.gemini_score >= 70 ? 'text-green-400' : a.gemini_score >= 50 ? 'text-yellow-400' : 'text-gray-400';
+      return '<div class="glass rounded-xl p-4">' +
+        '<div class="flex items-start gap-3">' +
+          '<div class="flex-1">' +
+            '<div class="flex items-center gap-2 mb-1">' +
+              '<span class="text-xs font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">' + esc(a.category || 'ai-news') + '</span>' +
+              '<span class="text-xs ' + scoreColor + '">Score: ' + (a.gemini_score || '?') + '</span>' +
+              '<span class="text-xs text-gray-500">' + esc(a.source || '') + '</span>' +
+            '</div>' +
+            '<h3 class="font-semibold"><a href="' + esc(a.url) + '" target="_blank" class="hover:text-cyan-400 transition">' + esc(a.title) + '</a></h3>' +
+            '<p class="text-sm text-gray-400 mt-1">' + esc(a.gemini_summary || a.summary || '') + '</p>' +
+            '<p class="text-xs text-gray-500 mt-1">' + new Date(a.published_at || a.fetched_at).toLocaleDateString('id-ID') + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  });
+}
+
+/* === CRUD === */
+function editPost(id) {
+  fetch('/api/blog?limit=50', {
+    headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN }
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    var post = (d.posts || []).find(function(p) { return p.id === id; });
+    if (!post) return alert('Post not found');
+    showTab('new');
+    document.getElementById('editId').value = post.id;
+    document.getElementById('editTitle').value = post.title;
+    document.getElementById('editContent').value = post.content;
+    document.getElementById('editExcerpt').value = post.excerpt || '';
+    document.getElementById('editTags').value = (post.tags || []).join(', ');
+    document.getElementById('editCategory').value = post.category || 'opini';
+    document.getElementById('editPublished').checked = post.published;
+  });
+}
+
+function savePost() {
+  var id = document.getElementById('editId').value;
+  var data = {
+    title: document.getElementById('editTitle').value,
+    content: document.getElementById('editContent').value,
+    excerpt: document.getElementById('editExcerpt').value,
+    category: document.getElementById('editCategory').value,
+    tags: document.getElementById('editTags').value.split(',').map(function(t) { return t.trim(); }).filter(Boolean),
+    published: document.getElementById('editPublished').checked
+  };
+
+  if (!data.title || !data.content) return alert('Judul dan konten wajib diisi');
+
+  if (id) data.id = id;
+
+  fetch('/api/blog', {
+    method: id ? 'PUT' : 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + AUTH_TOKEN
+    },
+    body: JSON.stringify(data)
+  }).then(function(r) { return r.json(); }).then(function(d) {
+    if (d.error) return alert('Error: ' + d.error);
+    alert(id ? 'Updated!' : 'Created!');
+    showTab('posts');
+    loadPosts();
+  }).catch(function(e) { alert('Error: ' + e.message); });
+}
+
+function deletePost(id) {
+  if (!confirm('Hapus postingan ini?')) return;
+  fetch('/api/blog?id=' + id, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN }
+  }).then(function(r) { return r.json(); }).then(function() {
+    loadPosts();
+  });
+}
+
+/* === UTILS === */
+function esc(s) {
+  var div = document.createElement('div');
+  div.textContent = s;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
