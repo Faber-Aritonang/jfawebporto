@@ -1,21 +1,19 @@
 /**
- * Cron Job: Fetch AI News RSS + Gemini Curation + Translation
- * 
- * Runs 2x daily via Vercel Cron (0 1,13 * * * = 08:00 & 20:00 WIB)
- * 
+ * Cron Job: Fetch AI News RSS + Gemini Curation + Indonesian Translation
+ *
+ * Runs 2x daily via Vercel Cron (08:00 & 20:00 WIB)
+ *
  * Flow:
  *   1. Fetch RSS feeds from top AI news sources
- *   2. Deduplicate against existing articles in Supabase
- *   3. Send to Gemini for scoring, summarization, AND translation to Indonesian
- *   4. Store top-scored articles in Supabase
+ *   2. Send to Gemini in batches for scoring + translation to Indonesian
+ *   3. Store curated articles in Supabase
  */
 
 const RSSParser = require('rss-parser');
 const { getSupabase } = require('../lib/supabase');
 
-// AI News RSS Feeds — kredibel & sering update
+// AI News RSS Feeds
 const RSS_FEEDS = [
-  // Internasional (akan diterjemahkan ke Indonesia)
   { name: 'The Verge AI', url: 'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml' },
   { name: 'TechCrunch AI', url: 'https://techcrunch.com/category/artificial-intelligence/feed/' },
   { name: 'VentureBeat AI', url: 'https://venturebeat.com/category/ai/feed/' },
@@ -24,30 +22,30 @@ const RSS_FEEDS = [
   { name: 'OpenAI Blog', url: 'https://openai.com/blog/rss.xml' },
   { name: 'Hacker News AI', url: 'https://hnrss.org/newest?q=artificial+intelligence+OR+LLM+OR+GPT+OR+machine+learning&points=30' },
   { name: 'MIT Tech Review AI', url: 'https://www.technologyreview.com/topic/artificial-intelligence/feed' },
-  { name: 'Towards AI', url: 'https://towardsai.net/feed' },
-  // Indonesia 🇮🇩
-  { name: 'DailySocial AI', url: 'https://dailysocial.id/feed' },
-  { name: 'Katadata AI', url: 'https://katadata.co.id/feed' },
+  { name: 'DailySocial', url: 'https://dailysocial.id/feed' },
+  { name: 'Katadata', url: 'https://katadata.co.id/feed' },
 ];
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const BATCH_SIZE = 10; // articles per Gemini call
+const MAX_ARTICLES = 60; // max articles to curate total (avoid timeout)
+const MIN_SCORE = 40;
 
-async function fetchRSS(feedUrl, timeoutMs = 10000) {
+// ─── RSS ───────────────────────────────────────────────────────────
+async function fetchRSS(feedUrl, timeoutMs = 8000) {
   const parser = new RSSParser({
     timeout: timeoutMs,
     headers: { 'User-Agent': 'JFA-Portfolio-Bot/1.0' },
-    customFields: { item: [['media:content', 'mediaContent'], ['media:thumbnail', 'mediaThumbnail']] }
   });
-
   try {
     const feed = await parser.parseURL(feedUrl);
-    return (feed.items || []).map(item => ({
+    return (feed.items || []).slice(0, 15).map(item => ({
       title: item.title || 'Untitled',
       url: item.link || '',
-      source: feed.title || feedUrl,
-      summary: (item.contentSnippet || item.content || '').substring(0, 500),
+      source: feed.title || 'Unknown',
+      summary: (item.contentSnippet || item.content || '').replace(/<[^>]+>/g, '').substring(0, 300),
       published_at: item.pubDate || item.isoDate || new Date().toISOString(),
-      image_url: extractImage(item)
+      image_url: item.enclosure?.url || item.mediaThumbnail?.$?.url || null,
     })).filter(item => item.title && item.url);
   } catch (err) {
     console.error(`[RSS] Failed: ${feedUrl}`, err.message);
@@ -55,108 +53,106 @@ async function fetchRSS(feedUrl, timeoutMs = 10000) {
   }
 }
 
-function extractImage(item) {
-  if (item.mediaContent?.$?.url) return item.mediaContent.$.url;
-  if (item.mediaThumbnail?.$?.url) return item.mediaThumbnail.$.url;
-  if (item.enclosure?.url) return item.enclosure.url;
-  const match = (item.content || '').match(/<img[^>]+src="([^"]+)"/);
-  return match ? match[1] : null;
-}
+// ─── GEMINI: Score + Translate to Indonesian ───────────────────────
+async function geminiBatch(articles, apiKey) {
+  if (!apiKey || articles.length === 0) return [];
 
-async function geminiCurate(articles, apiKey) {
-  if (!apiKey || articles.length === 0) return articles;
-
-  const batch = articles.slice(0, 20);
-  const articlesText = batch.map((a, i) =>
-    `[${i}] "${a.title}" | Source: ${a.source} | Summary: ${a.summary?.substring(0, 200)}`
+  const list = articles.map((a, i) =>
+    `[${i}] "${a.title}" | Sumber: ${a.source} | Isi: ${a.summary}`
   ).join('\n');
 
-  const prompt = `Anda adalah kurator berita AI untuk website portfolio.
+  const prompt = `Anda kurator berita AI. Tugas: Pilih artikel yang relevan, beri skor, DAN terjemahkan ke Bahasa Indonesia.
 
-Analisis artikel-artikel ini. KEMBALIKAN array JSON dengan format persis seperti ini:
-[{"index":0,"score":80,"title":"judul Indonesia","summary":"ringkasan Indonesia","category":"ai-news"}]
+ARTIKEL:
+${list}
 
-Field wajib untuk setiap artikel:
-- index: nomor (angka)
-- score: 0-100 (angka)
-- title: judul DITERJEMAHKAN ke Bahasa Indonesia
-- summary: ringkasan 1-2 kalimat dalam Bahasa Indonesia
-- category: "ai-news" atau "llm" atau "computer-vision" atau "ai-business" atau "open-source" atau "regulation"
+KEMBALIKAN hanya JSON array (tanpa markdown, tanpa penjelasan):
+[
+  {
+    "index": 0,
+    "score": 85,
+    "title_id": "Judul dalam Bahasa Indonesia",
+    "summary_id": "Ringkasan 1-2 kalimat dalam Bahasa Indonesia",
+    "category": "ai-news"
+  }
+]
 
-Scoring:
-- 70-100: AI praktis, tools baru, bisnis AI, LLM update
-- 40-69: riset AI, etika AI, analisis industri
-- 0-39: skip (jangan sertakan)
-
-Terjemahan:
-- Sudah Indonesia → pakai asli
-- Inggris → TERJEMAHKAN. Pertahankan istilah teknis (LLM, GPT, AI, ML).
-
-HANYA array JSON. Tanpa markdown. Tanpa penjelasan.
-
-${articlesText}`;
+Aturan:
+- Skor 0-100. Hanya sertakan artikel dengan skor >= 40
+- title_id: TERJEMAHKAN ke Indonesia. Pertahankan istilah teknis (LLM, GPT, AI, ML, dll)
+- summary_id: Ringkasan dalam Bahasa Indonesia
+- category: "ai-news" | "llm" | "computer-vision" | "ai-business" | "open-source" | "regulation"
+- Jika artikel sudah Indonesia, tetap masukkan di title_id/summary_id
+- Kembalikan JSON array saja. Jika tidak ada yang relevan, kembalikan []`;
 
   try {
-    const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+    const resp = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.3,
+          temperature: 0.2,
           maxOutputTokens: 4096,
-          responseMimeType: 'application/json'
-        }
-      })
+        },
+      }),
+      signal: AbortSignal.timeout(25000),
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('[Gemini] API error:', response.status, errText.substring(0, 200));
-      return articles;
+    if (!resp.ok) {
+      const err = await resp.text();
+      console.error('[Gemini] HTTP', resp.status, err.substring(0, 200));
+      return [];
     }
 
-    const data = await response.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!text) return articles;
+    const data = await resp.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
+    // Parse JSON from response (handle markdown code blocks)
     let scores;
-    try { scores = JSON.parse(text); }
-    catch { const match = text.match(/\[[\s\S]*\]/); scores = match ? JSON.parse(match[0]) : []; }
+    const cleaned = text.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
+    try {
+      scores = JSON.parse(cleaned);
+    } catch {
+      const match = cleaned.match(/\[[\s\S]*\]/);
+      scores = match ? JSON.parse(match[0]) : [];
+    }
 
-    return batch
+    if (!Array.isArray(scores)) return [];
+
+    return articles
       .map((article, i) => {
-        const scoreData = scores.find(s => s.index === i);
-        if (!scoreData || scoreData.score < 40) return null;
-        // Gemini returns 'title' and 'summary' (in Indonesian)
-        const translatedTitle = scoreData.title || scoreData.title_id || article.title;
-        const translatedSummary = scoreData.summary || scoreData.summary_id || article.summary;
+        const s = scores.find(x => x.index === i);
+        if (!s || (s.score || 0) < MIN_SCORE) return null;
         return {
-          ...article,
-          title: translatedTitle,
-          summary: translatedSummary,
-          gemini_score: scoreData.score,
-          gemini_summary: translatedSummary,
-          category: scoreData.category || 'ai-news'
+          title: s.title_id || s.title || article.title,
+          summary: s.summary_id || s.summary || article.summary,
+          category: s.category || 'ai-news',
+          score: s.score,
+          original: article,
         };
       })
       .filter(Boolean);
-
   } catch (err) {
     console.error('[Gemini] Error:', err.message);
-    return articles;
+    return [];
   }
 }
 
+// ─── MAIN ──────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
-  const authHeader = req.headers.authorization || '';
+  // Auth check
+  const token = req.headers['x-admin-token'] || req.query.token;
+  const adminPw = process.env.ADMIN_PASSWORD || '';
   const cronSecret = process.env.CRON_SECRET || '';
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-    const adminAuth = req.headers['x-admin-token'] || req.query.token;
-    if (adminAuth !== process.env.ADMIN_PASSWORD) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
+  const authHeader = req.headers.authorization || '';
+
+  if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
+    // Cron auth OK
+  } else if (adminPw && token === adminPw) {
+    // Admin auth OK
+  } else if (cronSecret || adminPw) {
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   const startTime = Date.now();
@@ -166,77 +162,94 @@ module.exports = async (req, res) => {
     const supabase = getSupabase();
     const geminiKey = process.env.GEMINI_API_KEY;
 
-    // 1. Fetch all RSS feeds
+    // 1. Fetch RSS
     console.log(`[RSS] Fetching ${RSS_FEEDS.length} feeds...`);
-    const feedResults = await Promise.allSettled(
-      RSS_FEEDS.map(feed => fetchRSS(feed.url))
+    const results = await Promise.allSettled(
+      RSS_FEEDS.map(f => fetchRSS(f.url))
     );
 
     let allArticles = [];
-    feedResults.forEach((result, i) => {
-      if (result.status === 'fulfilled') {
-        allArticles = allArticles.concat(result.value);
-        console.log(`[RSS] ${RSS_FEEDS[i].name}: ${result.value.length} articles`);
-      } else {
-        console.error(`[RSS] ${RSS_FEEDS[i].name}: FAILED`);
+    results.forEach((r, i) => {
+      if (r.status === 'fulfilled' && r.value.length > 0) {
+        allArticles = allArticles.concat(r.value);
+        console.log(`[RSS] ${RSS_FEEDS[i].name}: ${r.value.length}`);
       }
     });
 
-    console.log(`[RSS] Total fetched: ${allArticles.length} articles`);
+    console.log(`[RSS] Total: ${allArticles.length}`);
     if (allArticles.length === 0) {
-      return res.status(200).json({ message: 'No articles fetched', count: 0 });
+      return res.status(200).json({ pesan: 'Tidak ada artikel', diambil: 0 });
     }
 
-    // 2. Clear old articles & re-fetch fresh (so translations are updated)
-    await supabase.from('news_articles').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    console.log('[Dedup] Cleared old articles for fresh insert');
+    // 2. Deduplicate by URL
+    const seen = new Set();
+    allArticles = allArticles.filter(a => {
+      if (seen.has(a.url)) return false;
+      seen.add(a.url);
+      return true;
+    });
+    console.log(`[Dedup] Unique: ${allArticles.length}`);
 
-    // 3. Gemini curation + translation
-    console.log('[Gemini] Curating + translating to Indonesian...');
-    const curated = await geminiCurate(allArticles, geminiKey);
-    console.log(`[Gemini] ${curated.length} articles scored >= 40`);
+    // 3. Limit to avoid timeout
+    const toProcess = allArticles.slice(0, MAX_ARTICLES);
 
-    // 4. Insert into Supabase
-    if (curated.length > 0) {
-      const toInsert = curated.map(a => ({
+    // 4. Gemini: score + translate in batches
+    let curated = [];
+    if (geminiKey) {
+      for (let i = 0; i < toProcess.length; i += BATCH_SIZE) {
+        const batch = toProcess.slice(i, i + BATCH_SIZE);
+        console.log(`[Gemini] Batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(toProcess.length / BATCH_SIZE)} (${batch.length} articles)...`);
+        const result = await geminiBatch(batch, geminiKey);
+        curated = curated.concat(result);
+        console.log(`[Gemini] → ${result.length} scored >= ${MIN_SCORE}`);
+      }
+    } else {
+      // No Gemini key — insert all with default score
+      curated = toProcess.map(a => ({
         title: a.title,
-        url: a.url,
-        source: a.source,
-        summary: a.gemini_summary || a.summary,
-        category: a.category || 'ai-news',
-        image_url: a.image_url,
-        published_at: a.published_at,
-        gemini_score: a.gemini_score || 50,
-        gemini_summary: a.gemini_summary
+        summary: a.summary,
+        category: 'ai-news',
+        score: 50,
+        original: a,
+      }));
+    }
+
+    console.log(`[Gemini] Total curated: ${curated.length}`);
+
+    // 5. Clear old + insert new
+    await supabase.from('news_articles').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    console.log('[DB] Cleared old articles');
+
+    if (curated.length > 0) {
+      const toInsert = curated.map(c => ({
+        title: c.title,
+        url: c.original.url,
+        source: c.original.source,
+        summary: c.summary,
+        gemini_summary: c.summary,
+        category: c.category,
+        image_url: c.original.image_url,
+        published_at: c.original.published_at,
+        gemini_score: c.score,
       }));
 
-      const { data, error } = await supabase
-        .from('news_articles')
-        .upsert(toInsert, { onConflict: 'url', ignoreDuplicates: false })
-        .select();
-
+      const { error } = await supabase.from('news_articles').insert(toInsert);
       if (error) console.error('[DB] Insert error:', error);
-      else console.log(`[DB] Inserted ${data?.length || 0} articles`);
-    }
-
-    // 5. Cleanup old (keep last 200)
-    const { data: oldArticles } = await supabase
-      .from('news_articles')
-      .select('id')
-      .order('fetched_at', { ascending: false })
-      .range(200, 999);
-
-    if (oldArticles && oldArticles.length > 0) {
-      await supabase.from('news_articles').delete().in('id', oldArticles.map(a => a.id));
-      console.log(`[Cleanup] Removed ${oldArticles.length} old articles`);
+      else console.log(`[DB] Inserted ${toInsert.length} articles`);
     }
 
     const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-    console.log(`[Cron] Done in ${elapsed}s — ${curated.length} articles stored`);
-    return res.status(200).json({ message: 'Done', fetched: allArticles.length, curated: curated.length, elapsed: elapsed + 's' });
+    console.log(`[Cron] Done in ${elapsed}s`);
 
+    return res.status(200).json({
+      pesan: 'Selesai',
+      diambil: allArticles.length,
+      baru: curated.length,
+      dikurasi: curated.length,
+      'waktu berlalu': elapsed + ' detik',
+    });
   } catch (err) {
-    console.error('[Cron] Fatal error:', err);
+    console.error('[Cron] Fatal:', err);
     return res.status(500).json({ error: err.message });
   }
 };
