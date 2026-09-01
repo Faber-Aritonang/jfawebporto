@@ -932,6 +932,7 @@
   var lt=document.getElementById('langToggle'),ltm=document.getElementById('langToggleMobile');
   if(lt)lt.onclick=function(){setLang(lang==='id'?'en':'id');};
   if(ltm)ltm.onclick=function(){setLang(lang==='id'?'en':'id');};
+  window.setLang = setLang;
   setLang(lang);
 
   /* === TYPEWRITER === */
@@ -1351,12 +1352,11 @@
       }
     }
     hookLang();
-    // retry hook if setLang not yet defined
     var hookRetry = setInterval(function() {
       hookLang();
       if (window._termLangHooked) clearInterval(hookRetry);
-    }, 200);
-    setTimeout(function() { clearInterval(hookRetry); }, 5000);
+    }, 100);
+    setTimeout(function() { clearInterval(hookRetry); }, 3000);
   })();
 })();
 </script>
