@@ -285,9 +285,34 @@
     /* Theme picker highlight */
     .theme-option.active { background: rgba(255,255,255,.1); border: 1px solid var(--accent); }
 
-    /* Neural responsive */
-    @media (max-width: 640px) {
+    /* === RESPONSIVE === */
+    /* Tablet (768px - 1024px) */
+    @media (max-width: 1024px) {
+      .neural { width: 90%; height: auto; }
+    }
+    /* Mobile (< 768px) */
+    @media (max-width: 768px) {
       .neural { width: 100%; height: auto; }
+      #hero h1 { font-size: 2rem !important; }
+      #hero h2 { font-size: 1.1rem !important; }
+      #hero p { font-size: 0.9rem !important; padding: 0 0.5rem; }
+      #hero .flex { flex-direction: column; align-items: center; }
+      #hero .btn-glow, #hero .glass-hover { width: 100%; max-width: 280px; text-align: center; }
+      #about .grid { grid-template-columns: 1fr !important; }
+      #skills .grid { grid-template-columns: 1fr !important; }
+      #portfolio .grid { grid-template-columns: 1fr !important; }
+      #blog .grid { grid-template-columns: 1fr !important; }
+      #contact form { padding: 1.5rem !important; }
+      .glass-hover:hover { transform: none; }
+    }
+    /* Small mobile (< 480px) */
+    @media (max-width: 480px) {
+      #hero h1 { font-size: 1.6rem !important; }
+      #hero h2 { font-size: 1rem !important; }
+      .blog-tab { font-size: 0.75rem !important; padding: 0.5rem 0.75rem !important; }
+      .glass-hover { padding: 1rem !important; }
+      #contact .flex { flex-direction: column; }
+      #contact .glass-hover { width: 100%; }
     }
   /* === CHAT WIDGET === */
   #chatWidget { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
@@ -415,7 +440,7 @@
 </nav>
 
 <!-- HERO -->
-<section id="hero" class="relative z-10 min-h-screen flex items-center justify-center px-6 pt-24">
+<section id="hero" class="relative z-10 min-h-[80vh] md:min-h-screen flex items-center justify-center px-4 md:px-6 pt-20 md:pt-24">
   <div class="max-w-4xl text-center">
     <div class="float inline-block mb-8">
       <div class="w-32 h-32 rounded-full glass flex items-center justify-center text-4xl font-bold text-gradient mx-auto">JF</div>
@@ -516,7 +541,7 @@
 </section>
 
 <!-- ABOUT -->
-<section id="about" class="relative z-10 py-24 px-6">
+<section id="about" class="relative z-10 py-16 md:py-24 px-4 md:px-6">
   <div class="max-w-6xl mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center reveal"><span class="text-gradient" data-i18n="about_title">Tentang Saya</span></h2>
     <div class="grid md:grid-cols-3 gap-6">
@@ -544,7 +569,7 @@
 </section>
 
 <!-- SKILLS -->
-<section id="skills" class="relative z-10 py-24 px-6">
+<section id="skills" class="relative z-10 py-16 md:py-24 px-4 md:px-6">
   <div class="max-w-6xl mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center reveal"><span class="text-gradient" data-i18n="skills_title">Keahlian & Teknologi</span></h2>
     <div class="flex flex-wrap justify-center gap-4 mb-12 reveal" id="techGrid"></div>
@@ -578,7 +603,7 @@
 </section>
 
 <!-- PORTFOLIO -->
-<section id="portfolio" class="relative z-10 py-24 px-6">
+<section id="portfolio" class="relative z-10 py-16 md:py-24 px-4 md:px-6">
   <div class="max-w-6xl mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center reveal"><span class="text-gradient" data-i18n="port_title">Portfolio</span></h2>
     <p class="text-gray-400 text-center mb-10 reveal" data-i18n="port_sub">Auto-fetched dari GitHub — selalu terbaru</p>
@@ -597,7 +622,7 @@
 </section>
 
 <!-- BLOG -->
-<section id="blog" class="relative z-10 py-24 px-6">
+<section id="blog" class="relative z-10 py-16 md:py-24 px-4 md:px-6">
   <div class="max-w-6xl mx-auto">
     <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center reveal"><span class="text-gradient" data-i18n="blog_title">Blog & Artikel</span></h2>
     <p class="text-gray-400 text-center mb-10 reveal" data-i18n="blog_sub">Berita AI & opini seputar implementasi kecerdasan buatan</p>
@@ -643,7 +668,7 @@
 </section>
 
 <!-- CONTACT -->
-<section id="contact" class="relative z-10 py-24 px-6">
+<section id="contact" class="relative z-10 py-16 md:py-24 px-4 md:px-6">
   <div class="max-w-4xl mx-auto reveal text-center">
     <h2 class="text-3xl md:text-4xl font-bold mb-10"><span class="text-gradient" data-i18n="contact_title">Hubungi Saya</span></h2>
     <div class="flex flex-wrap gap-4 justify-center mb-12">
