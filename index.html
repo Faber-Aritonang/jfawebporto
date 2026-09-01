@@ -212,6 +212,71 @@
     }
     .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    /* === THEME SYSTEM === */
+    :root {
+      --bg: #050810; --bg2: rgba(255,255,255,.04); --text: #e2e8f0; --text2: #94a3b8;
+      --accent: #22d3ee; --accent2: #a855f7; --glass-border: rgba(255,255,255,.08);
+      --glass-bg: rgba(255,255,255,.04); --card-bg: rgba(255,255,255,.04);
+    }
+    body { background: var(--bg); color: var(--text); }
+    body * { transition: background .3s, color .3s, border-color .3s; }
+
+    /* Dark (default) */
+    body.theme-dark { --bg: #050810; --text: #e2e8f0; --text2: #94a3b8; --accent: #22d3ee; --accent2: #a855f7; --glass-bg: rgba(255,255,255,.04); --glass-border: rgba(255,255,255,.08); }
+    body.theme-dark .bg-grid { background-image: linear-gradient(rgba(34,211,238,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.05) 1px,transparent 1px); }
+
+    /* Light */
+    body.theme-light { --bg: #f8fafc; --text: #1e293b; --text2: #64748b; --accent: #0891b2; --accent2: #7c3aed; --glass-bg: rgba(255,255,255,.7); --glass-border: rgba(0,0,0,.08); }
+    body.theme-light .bg-grid { background-image: linear-gradient(rgba(8,145,178,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(8,145,178,.08) 1px,transparent 1px); }
+    body.theme-light .loading-skeleton { background: linear-gradient(90deg,rgba(0,0,0,.05),rgba(0,0,0,.08),rgba(0,0,0,.05)); background-size:200% 100%; }
+    body.theme-light .glass { background: rgba(255,255,255,.7); border-color: rgba(0,0,0,.08); }
+    body.theme-light .glass-hover:hover { background: rgba(255,255,255,.9); border-color: rgba(8,145,178,.4); box-shadow: 0 8px 40px rgba(8,145,178,.1); }
+    body.theme-light .glow-orb { opacity: .15; }
+    body.theme-light .neural line { stroke: rgba(8,145,178,.2); }
+    body.theme-light .neural circle { fill: #0891b2; }
+
+    /* Midnight */
+    body.theme-midnight { --bg: #0a0e1a; --text: #cbd5e1; --text2: #64748b; --accent: #60a5fa; --accent2: #818cf8; --glass-bg: rgba(30,41,59,.6); --glass-border: rgba(96,165,250,.15); }
+    body.theme-midnight .bg-grid { background-image: linear-gradient(rgba(96,165,250,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(96,165,250,.04) 1px,transparent 1px); }
+    body.theme-midnight .glow-orb.bg-cyan-500 { background: #3b82f6; }
+    body.theme-midnight .glow-orb.bg-purple-600 { background: #6366f1; }
+    body.theme-midnight .neural line { stroke: rgba(96,165,250,.25); }
+    body.theme-midnight .neural circle { fill: #60a5fa; }
+
+    /* Nature */
+    body.theme-nature { --bg: #0f1a0f; --text: #d1fae5; --text2: #6ee7b7; --accent: #34d399; --accent2: #a3e635; --glass-bg: rgba(20,40,20,.6); --glass-border: rgba(52,211,153,.15); }
+    body.theme-nature .bg-grid { background-image: linear-gradient(rgba(52,211,153,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(52,211,153,.04) 1px,transparent 1px); }
+    body.theme-nature .glow-orb.bg-cyan-500 { background: #10b981; }
+    body.theme-nature .glow-orb.bg-purple-600 { background: #65a30d; }
+    body.theme-nature .neural line { stroke: rgba(52,211,153,.25); }
+    body.theme-nature .neural circle { fill: #34d399; }
+    body.theme-nature .text-gradient { background: linear-gradient(90deg,#34d399,#a3e635); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    body.theme-nature .btn-glow { background: linear-gradient(90deg,#059669,#65a30d); }
+
+    /* Sunset */
+    body.theme-sunset { --bg: #1a0a0a; --text: #fed7aa; --text2: #fb923c; --accent: #f97316; --accent2: #ef4444; --glass-bg: rgba(40,15,15,.6); --glass-border: rgba(249,115,22,.15); }
+    body.theme-sunset .bg-grid { background-image: linear-gradient(rgba(249,115,22,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(249,115,22,.04) 1px,transparent 1px); }
+    body.theme-sunset .glow-orb.bg-cyan-500 { background: #f97316; }
+    body.theme-sunset .glow-orb.bg-purple-600 { background: #dc2626; }
+    body.theme-sunset .neural line { stroke: rgba(249,115,22,.25); }
+    body.theme-sunset .neural circle { fill: #f97316; }
+    body.theme-sunset .text-gradient { background: linear-gradient(90deg,#f97316,#ef4444); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    body.theme-sunset .btn-glow { background: linear-gradient(90deg,#ea580c,#dc2626); }
+
+    /* Cyber */
+    body.theme-cyber { --bg: #0f0515; --text: #f0e6ff; --text2: #c084fc; --accent: #d946ef; --accent2: #7c3aed; --glass-bg: rgba(30,10,40,.6); --glass-border: rgba(217,70,239,.15); }
+    body.theme-cyber .bg-grid { background-image: linear-gradient(rgba(217,70,239,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(217,70,239,.04) 1px,transparent 1px); }
+    body.theme-cyber .glow-orb.bg-cyan-500 { background: #d946ef; }
+    body.theme-cyber .glow-orb.bg-purple-600 { background: #7c3aed; }
+    body.theme-cyber .neural line { stroke: rgba(217,70,239,.25); }
+    body.theme-cyber .neural circle { fill: #d946ef; }
+    body.theme-cyber .text-gradient { background: linear-gradient(90deg,#d946ef,#7c3aed); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    body.theme-cyber .btn-glow { background: linear-gradient(90deg,#c026d3,#7c3aed); }
+    body.theme-cyber .glass { border-color: rgba(217,70,239,.12); }
+
+    /* Theme picker highlight */
+    .theme-option.active { background: rgba(255,255,255,.1); border: 1px solid var(--accent); }
   /* === CHAT WIDGET === */
   #chatWidget { position: fixed; bottom: 24px; right: 24px; z-index: 9999; }
   .chat-toggle {
@@ -297,7 +362,17 @@
       <a href="#skills" data-i18n="nav_skills" class="nav-link hover:text-accent transition">Skills</a>
       <a href="#blog" data-i18n="nav_blog" class="nav-link hover:text-accent transition">Blog</a>
       <a href="#contact" data-i18n="nav_contact" class="nav-link hover:text-accent transition">Kontak</a>
-      <button id="themeToggle" class="glass px-2 py-1.5 rounded-lg hover:border-accent transition text-lg" title="Toggle theme">🌙</button>
+      <div class="relative">
+        <button id="themeToggle" class="glass px-2 py-1.5 rounded-lg hover:border-accent transition text-lg" title="Pilih Theme">🌙</button>
+        <div id="themePicker" class="hidden absolute top-full right-0 mt-2 glass rounded-xl p-2 min-w-[160px] z-50">
+          <button data-theme="dark" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">🌙 Dark</button>
+          <button data-theme="light" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">☀️ Light</button>
+          <button data-theme="midnight" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">🌌 Midnight</button>
+          <button data-theme="nature" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">🌿 Nature</button>
+          <button data-theme="sunset" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">🔥 Sunset</button>
+          <button data-theme="cyber" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">💜 Cyber</button>
+        </div>
+      </div>
       <button id="langToggle" class="glass px-3 py-1.5 rounded-lg font-mono text-accent hover:border-accent transition">
         ID <span class="text-gray-500">/ EN</span>
       </button>
@@ -311,7 +386,17 @@
     <a href="#blog" data-i18n="nav_blog" class="nav-link hover:text-accent transition">Blog</a>
     <a href="#contact" data-i18n="nav_contact" class="nav-link hover:text-accent transition">Kontak</a>
     <div class="flex gap-2">
-      <button id="themeToggleMobile" class="glass px-2 py-1.5 rounded-lg text-lg">🌙</button>
+      <div class="relative">
+        <button id="themeToggleMobile" class="glass px-2 py-1.5 rounded-lg text-lg">🌙</button>
+        <div id="themePickerMobile" class="hidden absolute top-full right-0 mt-2 glass rounded-xl p-2 min-w-[160px] z-50">
+          <button data-theme="dark" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">🌙 Dark</button>
+          <button data-theme="light" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">☀️ Light</button>
+          <button data-theme="midnight" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">🌌 Midnight</button>
+          <button data-theme="nature" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">🌿 Nature</button>
+          <button data-theme="sunset" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">🔥 Sunset</button>
+          <button data-theme="cyber" class="theme-option w-full text-left px-3 py-2 rounded-lg text-sm hover:bg-white/10 transition flex items-center gap-2">💜 Cyber</button>
+        </div>
+      </div>
       <button id="langToggleMobile" class="glass px-3 py-1.5 rounded-lg font-mono text-accent w-fit">ID / EN</button>
     </div>
   </div>
@@ -655,9 +740,46 @@
 
   /* === THEME === */
   try {
-    function toggleTheme(){document.body.classList.toggle('light-mode');localStorage.setItem('theme',document.body.classList.contains('light-mode')?'light':'dark');}
-    var tt=document.getElementById('themeToggle'),ttm=document.getElementById('themeToggleMobile');
-    if(tt)tt.onclick=toggleTheme;if(ttm)ttm.onclick=toggleTheme;
+    /* === THEME SYSTEM === */
+    var themeIcons={dark:'🌙',light:'☀️',midnight:'🌌',nature:'🌿',sunset:'🔥',cyber:'💜'};
+    var themes=['dark','light','midnight','nature','sunset','cyber'];
+    var currentTheme=localStorage.getItem('theme')||'dark';
+
+    function setTheme(t){
+      document.body.className=document.body.className.replace(/theme-\w+/g,'');
+      document.body.classList.add('theme-'+t);
+      localStorage.setItem('theme',t);
+      currentTheme=t;
+      var icon=themeIcons[t]||'🌙';
+      var tt=document.getElementById('themeToggle');
+      var ttm=document.getElementById('themeToggleMobile');
+      if(tt)tt.textContent=icon;
+      if(ttm)ttm.textContent=icon;
+      document.querySelectorAll('.theme-option').forEach(function(o){
+        o.classList.toggle('active',o.dataset.theme===t);
+      });
+    }
+    setTheme(currentTheme);
+
+    /* Theme picker toggle */
+    function togglePicker(id){
+      var p=document.getElementById(id);
+      if(p)p.classList.toggle('hidden');
+    }
+    var tt=document.getElementById('themeToggle');
+    var ttm=document.getElementById('themeToggleMobile');
+    if(tt)tt.onclick=function(e){e.stopPropagation();togglePicker('themePicker');};
+    if(ttm)ttm.onclick=function(e){e.stopPropagation();togglePicker('themePickerMobile');};
+
+    document.querySelectorAll('.theme-option').forEach(function(btn){
+      btn.onclick=function(){setTheme(btn.dataset.theme);togglePicker('themePicker');togglePicker('themePickerMobile');};
+    });
+    document.addEventListener('click',function(){
+      var p1=document.getElementById('themePicker');
+      var p2=document.getElementById('themePickerMobile');
+      if(p1&&!p1.classList.contains('hidden'))p1.classList.add('hidden');
+      if(p2&&!p2.classList.contains('hidden'))p2.classList.add('hidden');
+    });
   } catch(e) {}
 
   /* === LANG === */
