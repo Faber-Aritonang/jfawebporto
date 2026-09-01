@@ -137,13 +137,13 @@ var currentPostId = null;
 /* === AUTH === */
 function login() {
   var pw = document.getElementById('password').value;
-  fetch('/api/blog?limit=1', { headers: { 'Authorization': 'Bearer ' + pw } })
+  fetch('/api/blog?auth=check', { headers: { 'Authorization': 'Bearer ' + pw } })
   .then(function(r) { if (r.ok) { AUTH_TOKEN = pw; localStorage.setItem('blog_admin_token', pw); showDashboard(); } else { document.getElementById('loginError').classList.remove('hidden'); } })
   .catch(function() { document.getElementById('loginError').classList.remove('hidden'); });
 }
 function logout() { AUTH_TOKEN = ''; localStorage.removeItem('blog_admin_token'); location.reload(); }
 function showDashboard() { document.getElementById('loginPage').classList.add('hidden'); document.getElementById('dashboard').classList.remove('hidden'); loadPosts(); }
-if (AUTH_TOKEN) { fetch('/api/blog?limit=1', { headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } }).then(function(r) { if (r.ok) showDashboard(); }); }
+if (AUTH_TOKEN) { fetch('/api/blog?auth=check', { headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } }).then(function(r) { if (r.ok) showDashboard(); else { AUTH_TOKEN = ''; localStorage.removeItem('blog_admin_token'); } }); }
 
 /* === TABS === */
 function showTab(tab) {

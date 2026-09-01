@@ -39,9 +39,17 @@ module.exports = async (req, res) => {
       try { body = JSON.parse(body); } catch(e) { body = {}; }
     }
 
-    // === GET: List or Get single post ===
+    // === GET: List, Get single, or Auth check ===
     if (method === 'GET') {
-      const { slug, category, limit = 20, offset = 0 } = query;
+      const { slug, category, limit = 20, offset = 0, auth } = query;
+
+      // Auth check: admin login
+      if (auth === 'check') {
+        if (checkAdmin(req)) {
+          return res.status(200).json({ ok: true });
+        }
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
 
       if (slug) {
         // Get single post with attachments
