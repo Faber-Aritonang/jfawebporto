@@ -25,7 +25,7 @@ const RSS_FEEDS = [
   { name: 'Hacker News - AI', url: 'https://hnrss.org/newest?q=artificial+intelligence+OR+LLM+OR+GPT&points=50' },
 ];
 
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent';
 
 async function fetchRSS(feedUrl, timeoutMs = 10000) {
   const parser = new RSSParser({

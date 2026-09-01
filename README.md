@@ -32,7 +32,7 @@
 | Frontend | HTML5, Tailwind CSS (CDN), Vanilla JavaScript |
 | Backend | Vercel Serverless Functions |
 | Database | Supabase (PostgreSQL) |
-| AI Curation | Google Gemini API (gemini-2.0-flash) |
+| AI Curation | Google Gemini API (gemini-3.5-flash-lite) |
 | RSS | rss-parser npm |
 | Hosting | Vercel |
 | Version Control | Git & GitHub |
