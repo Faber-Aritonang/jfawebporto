@@ -1260,9 +1260,7 @@
         { c: 'from portfolio import JimmyFaber', o: '<span class="t-success">&gt;&gt;&gt; </span>JimmyFaber loaded &mdash; <span style="color:#3fb950">AI Implementator</span>' },
         { c: 'print(jimmy.about)', o: "I'm Jimmy Faber, an AI Implementator focused on applying\nAI technology to real business systems. I believe AI is\nnot just a trend, but a tool that can transform how\nbusinesses operate &mdash; faster, smarter, more efficient." },
         { c: 'print(jimmy.experience)', o: "With an IT background, I handle the full implementation\ncycle: requirements analysis, development, API/model\nintegration, to deployment. My goal is to ensure each\nAI solution provides measurable and sustainable ROI." },
-        { c: 'jimmy.skills', o: '[<span class="t-success">&quot;Python&quot;</span>, <span class="t-highlight">&quot;TensorFlow&quot;</span>, <span style="color:#a5d6ff">&quot;PyTorch&quot;</span>, <span class="t-flag">&quot;FastAPI&quot;</span>,\n <span style="color:#d2a8ff">&quot;Node.js&quot;</span>, <span class="t-success">&quot;Docker&quot;</span>, <span class="t-highlight">&quot;LLM&quot;</span>, <span style="color:#a5d6ff">&quot;RAG&quot;</span>, <span class="t-flag">&quot;Automation&quot;</span>]' },
-        { c: 'jimmy.goal', o: '<span class="t-string">&quot;Building AI systems that create real impact for businesses&quot;</span>' },
-        { c: 'jimmy.contact', o: 'Email: <span class="t-highlight">faber.aritonang@gmail.com</span>\nTelegram: <span class="t-success">@jimmyfaberaritonang_bot</span>\nGitHub: <span style="color:#a5d6ff">github.com/Faber-Aritonang</span>' }
+        { c: 'print("✅ Ready to implement AI for your business!")', o: '<span class="t-success">✅ Ready to implement AI for your business!</span>' }
       ]
     };
 
@@ -1339,16 +1337,26 @@
     // Start immediately
     runCycle();
 
-    // language switch
-    var orig = window.setLang;
-    if (typeof orig === 'function') {
-      window.setLang = function(l) {
-        termLang = l;
-        clearTimeout(timer);
-        orig(l);
-        runCycle();
-      };
+    // language switch - hook into setLang
+    function hookLang() {
+      if (typeof window.setLang === 'function' && !window._termLangHooked) {
+        var orig = window.setLang;
+        window.setLang = function(l) {
+          termLang = l;
+          clearTimeout(timer);
+          orig(l);
+          runCycle();
+        };
+        window._termLangHooked = true;
+      }
     }
+    hookLang();
+    // retry hook if setLang not yet defined
+    var hookRetry = setInterval(function() {
+      hookLang();
+      if (window._termLangHooked) clearInterval(hookRetry);
+    }, 200);
+    setTimeout(function() { clearInterval(hookRetry); }, 5000);
   })();
 })();
 </script>
