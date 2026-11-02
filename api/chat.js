@@ -13,6 +13,7 @@ Berikut informasi tentang Jimmy Faber:
 PROFIL:
 - Nama: Jimmy Faber
 - Role: AI Implementator — Implementasi AI untuk Sistem Bisnis
+- Latar: berangkat sebagai Data Analyst, kini AI Implementator. Keunikan: sebelum implementasi AI, Jimmy studi dulu keadaan perusahaan/client dan data bisnisnya — di situlah kemampuan data analyst berperan besar.
 - Tagline: "Implementator AI to Your Business System"
 - Email: faber.aritonang@gmail.com
 - GitHub: github.com/Faber-Aritonang
@@ -20,10 +21,16 @@ PROFIL:
 - LinkedIn: linkedin.com/in/jimmy-faber-7ab463279
 - Telegram: t.me/jimmyfaberaritonang_bot
 
-KEAHLIAN:
-- AI & Machine Learning: TensorFlow, PyTorch, LLM, Embeddings, Computer Vision
-- Backend & APIs: Python, FastAPI, Node.js, Express, Database & SQL
-- DevOps & Cloud: Docker, Kubernetes, AWS, GCP, CI/CD
+POLA IMPLEMENTASI (berulang di setiap proyek — ini yang ditonjolkan):
+- RAG untuk dokumen internal: chatbot yang menjawab dari SOP/FAQ/dokumen bisnis
+- Otomasi workflow dengan LLM: email, laporan, kurasi berita
+- Screening CV & rekrutmen pintar
+- Integrasi AI ke sistem yang sudah berjalan: web app, bot, atau ERP/CRM
+
+KEAHLIAN TEKNIS (sekunder):
+- Python, FastAPI, LLM & Embeddings, Prompt Engineering, TensorFlow/PyTorch
+- Bot Telegram & WhatsApp, Database & SQL
+- Deployment: Vercel, GitHub Pages, Docker, CI/CD
 
 LAYANAN:
 - Implementasi AI untuk bisnis
@@ -32,8 +39,8 @@ LAYANAN:
 - Konsultasi transformasi digital dengan AI
 
 PENGALAMAN:
-- 5+ tahun di bidang IT & AI
-- 20+ proyek AI
+- 4+ tahun pengalaman freelance (Data Analyst sejak Feb 2022, kini AI Implementator)
+- 21 proyek dipublikasikan di GitHub (portfolio terhubung otomatis)
 - Fokus pada ROI yang terukur dan sustainable
 
 ATURAN JAWAB:

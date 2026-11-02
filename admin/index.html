@@ -133,6 +133,8 @@
 var AUTH_TOKEN = localStorage.getItem('blog_admin_token') || '';
 var pendingFiles = [];
 var currentPostId = null;
+var currentSlug = '';
+var currentAttachments = [];
 
 /* === AUTH === */
 function login() {
@@ -178,7 +180,7 @@ function loadPosts() {
         '</div>' +
         '<div class="flex gap-2">' +
           '<button onclick="editPost(\'' + p.id + '\')" class="glass px-3 py-1.5 rounded-lg text-xs hover:border-cyan-400 transition">✏️ Edit</button>' +
-          '<button onclick="viewPost(\'' + p.slug + '\')" class="glass px-3 py-1.5 rounded-lg text-xs hover:border-cyan-400 transition">👁️</button>' +
+          (p.published ? '<button onclick="viewPost(\'' + p.slug + '\')" class="glass px-3 py-1.5 rounded-lg text-xs hover:border-cyan-400 transition">👁️</button>' : '<span class="px-3 py-1.5 text-xs text-yellow-400 self-center" title="Draft — belum tampil untuk publik">📝</span>') +
           '<button onclick="deletePost(\'' + p.id + '\')" class="glass px-3 py-1.5 rounded-lg text-xs text-red-400 hover:border-red-400 transition">🗑️</button>' +
         '</div>' +
       '</div>';
@@ -206,10 +208,18 @@ function loadNews() {
             '<h3 class="font-semibold"><a href="' + esc(a.url) + '" target="_blank" class="hover:text-cyan-400 transition">' + esc(a.title) + '</a></h3>' +
             '<p class="text-sm text-gray-400 mt-1">' + esc(a.gemini_summary || a.summary || '') + '</p>' +
           '</div>' +
+          '<button onclick="deleteNews(\'' + a.id + '\')" class="glass px-3 py-1.5 rounded-lg text-xs text-red-400 hover:border-red-400 transition shrink-0" title="Hapus artikel">🗑️</button>' +
         '</div>' +
       '</div>';
     }).join('');
   });
+}
+
+function deleteNews(id) {
+  if (!confirm('Hapus artikel berita ini dari rubrik?')) return;
+  fetch('/api/news?id=' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } })
+  .then(function(r) { return r.json(); }).then(function() { loadNews(); })
+  .catch(function(e) { alert('Error: ' + e.message); });
 }
 
 /* === EDITOR === */
@@ -223,7 +233,9 @@ function clearEditor() {
   document.getElementById('editPublished').checked = true;
   pendingFiles = [];
   currentPostId = null;
-  renderAttachments([]);
+  currentSlug = '';
+  currentAttachments = [];
+  renderAttachments();
 }
 
 function editPost(id) {
@@ -240,6 +252,8 @@ function editPost(id) {
     document.getElementById('editCategory').value = post.category || 'opini';
     document.getElementById('editPublished').checked = post.published;
     currentPostId = post.id;
+    currentSlug = post.slug;
+    loadPostAttachments(post.slug);
   });
 }
 
@@ -263,6 +277,7 @@ function savePost() {
   }).then(function(r) { return r.json(); }).then(function(d) {
     if (d.error) return alert('Error: ' + d.error);
     var postId = d.post?.id || id;
+    if (d.post && d.post.slug) { currentPostId = d.post.id; currentSlug = d.post.slug; }
     // Upload pending files
     if (pendingFiles.length > 0 && postId) {
       uploadFiles(postId).then(function() { alert('Saved!'); showTab('posts'); });
@@ -293,12 +308,13 @@ function deleteAttachment(id) {
   fetch('/api/upload?id=' + id, {
     method: 'DELETE',
     headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN }
-  }).then(function(r) { return r.json(); }).then(function() { loadPostAttachments(currentPostId); });
+  }).then(function(r) { return r.json(); }).then(function() { loadPostAttachments(currentSlug); });
 }
 
-function renderAttachments(attachments) {
+function renderAttachments(saved) {
+  if (saved) currentAttachments = saved;
   var list = document.getElementById('attachmentList');
-  var all = attachments.map(function(a) { return { ...a, isNew: false }; })
+  var all = currentAttachments.map(function(a) { return { ...a, isNew: false }; })
     .concat(pendingFiles.map(function(f, i) { return { id: 'new-' + i, file_name: f.name, file_type: f.type, file_size: f.size, isNew: true, idx: i }; }));
 
   if (!all.length) { list.innerHTML = ''; return; }
@@ -327,13 +343,13 @@ function renderAttachments(attachments) {
   }).join('');
 }
 
-function removePendingFile(idx) { pendingFiles.splice(idx, 1); renderAttachments([]); }
+function removePendingFile(idx) { pendingFiles.splice(idx, 1); renderAttachments(); }
 
-function loadPostAttachments(postId) {
-  if (!postId) return;
-  fetch('/api/blog?slug=' + encodeURIComponent(postId), { headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } })
+function loadPostAttachments(slug) {
+  if (!slug) return;
+  fetch('/api/blog?slug=' + encodeURIComponent(slug), { headers: { 'Authorization': 'Bearer ' + AUTH_TOKEN } })
   .then(function(r) { return r.json(); }).then(function(d) {
-    renderAttachments(d.post?.attachments || []);
+    renderAttachments((d.post && d.post.attachments) || []);
   });
 }
 
@@ -365,7 +381,7 @@ function handleFiles(files) {
     if (files[i].size > 100 * 1024 * 1024) { alert(files[i].name + ' terlalu besar (max 100MB)'); continue; }
     pendingFiles.push(files[i]);
   }
-  renderAttachments([]);
+  renderAttachments();
 }
 
 /* === UTILS === */

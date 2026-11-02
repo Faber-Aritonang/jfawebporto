@@ -42,23 +42,25 @@ module.exports = async (req, res) => {
     // === GET: List, Get single, or Auth check ===
     if (method === 'GET') {
       const { slug, category, limit = 20, offset = 0, auth } = query;
+      const isAdmin = checkAdmin(req);
 
       // Auth check: admin login
       if (auth === 'check') {
-        if (checkAdmin(req)) {
+        if (isAdmin) {
           return res.status(200).json({ ok: true });
         }
         return res.status(401).json({ error: 'Unauthorized' });
       }
 
       if (slug) {
-        // Get single post with attachments
-        const { data: post, error } = await supabase
+        // Get single post with attachments (admin may fetch drafts too)
+        let postQ = supabase
           .from('blog_posts')
           .select('*')
-          .eq('slug', slug)
-          .eq('published', true)
-          .single();
+          .eq('slug', slug);
+        if (!isAdmin) postQ = postQ.eq('published', true);
+
+        const { data: post, error } = await postQ.single();
 
         if (error || !post) {
           return res.status(404).json({ error: 'Post not found' });
@@ -76,17 +78,16 @@ module.exports = async (req, res) => {
         });
       }
 
-      // List posts
+      // List posts — admin sees drafts too, public sees published only
       let q = supabase
         .from('blog_posts')
         .select('*')
-        .eq('published', true)
-        .order('created_at', { ascending: false })
-        .range(parseInt(offset), parseInt(offset) + parseInt(limit) - 1);
+        .order('created_at', { ascending: false });
 
-      if (category) {
-        q = q.eq('category', category);
-      }
+      if (!isAdmin) q = q.eq('published', true);
+      if (category) q = q.eq('category', category);
+
+      q = q.range(parseInt(offset), parseInt(offset) + parseInt(limit) - 1);
 
       const { data: posts, error } = await q;
       if (error) throw error;

@@ -468,11 +468,11 @@
     <div class="float inline-block mb-8">
       <div class="w-32 h-32 rounded-full glass flex items-center justify-center text-4xl font-bold text-gradient mx-auto">JF</div>
     </div>
-    <p class="font-mono text-accent mb-2">// Hello World, saya</p>
+    <p class="font-mono text-accent mb-2"><span class="inline-block w-2 h-2 rounded-full mr-2 align-middle" style="background:#22c55e;box-shadow:0 0 8px #22c55e"></span><span data-i18n="hero_kicker">Terbuka untuk proyek freelance</span></p>
     <h1 class="text-4xl md:text-6xl font-extrabold mb-4"><span class="text-gradient">Jimmy Faber</span></h1>
     <h2 class="text-xl md:text-2xl font-semibold mb-6 typing" id="typewriter"></h2>
     <p class="text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed" data-i18n="hero_desc">
-      Membantu bisnis mengadopsi kecerdasan buatan — dari ide, integrasi, hingga sistem produksi yang berdampak nyata.
+      Saya membantu UMKM dan perusahaan mengintegrasikan AI ke operasional harian — dari chatbot layanan hingga otomasi laporan — dengan studi dulu data dan proses bisnis Anda.
     </p>
     <div class="flex flex-wrap gap-4 justify-center">
       <a href="#portfolio" class="btn-glow px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition" data-i18n="hero_cta1">Lihat Portfolio</a>
@@ -584,20 +584,23 @@
           </div>
         </div>
       </div>
-      <!-- Stats -->
+      <!-- Stats — every number links to its proof -->
       <div class="space-y-4">
-        <div class="glass glass-hover rounded-2xl p-6 text-center reveal">
-          <div class="text-3xl font-bold text-accent mb-2" id="stat-projects">20+</div>
-          <p class="text-gray-400 text-sm font-mono" data-i18n="stat_projects">AI Projects</p>
-        </div>
-        <div class="glass glass-hover rounded-2xl p-6 text-center reveal">
-          <div class="text-3xl font-bold text-accent2 mb-2">5+</div>
+        <a href="#portfolio" class="glass glass-hover rounded-2xl p-6 text-center reveal block transition hover:border-accent/60">
+          <div class="text-3xl font-bold text-accent mb-2" id="stat-projects">—</div>
+          <p class="text-gray-400 text-sm font-mono" data-i18n="stat_projects">Proyek di Portfolio</p>
+          <p class="text-xs font-mono text-accent mt-2" data-i18n="stat_see_cases">Lihat case-nya →</p>
+        </a>
+        <a href="https://linkedin.com/in/jimmy-faber-7ab463279" target="_blank" rel="noopener noreferrer" class="glass glass-hover rounded-2xl p-6 text-center reveal block transition hover:border-accent2/60">
+          <div class="text-3xl font-bold text-accent2 mb-2">4+</div>
           <p class="text-gray-400 text-sm font-mono" data-i18n="stat_years">Tahun Experience</p>
-        </div>
-        <div class="glass glass-hover rounded-2xl p-6 text-center reveal">
-          <div class="text-3xl font-bold text-accent mb-2" id="stat-stars">0+</div>
-          <p class="text-gray-400 text-sm font-mono" data-i18n="stat_stars">GitHub Stars</p>
-        </div>
+          <p class="text-xs font-mono text-accent2 mt-2" data-i18n="stat_years_proof">Freelance sejak Feb 2022 →</p>
+        </a>
+        <a href="#portfolio" class="glass glass-hover rounded-2xl p-6 text-center reveal block transition hover:border-accent/60">
+          <div class="text-3xl font-bold text-accent mb-2" id="stat-live">—</div>
+          <p class="text-gray-400 text-sm font-mono" data-i18n="stat_live">Sistem dengan Demo Live</p>
+          <p class="text-xs font-mono text-accent mt-2" data-i18n="stat_see_cases">Lihat case-nya →</p>
+        </a>
       </div>
     </div>
   </div>
@@ -606,30 +609,61 @@
 <!-- SKILLS -->
 <section id="skills" class="relative z-10 py-16 md:py-24 px-4 md:px-6">
   <div class="max-w-6xl mx-auto">
-    <h2 class="text-3xl md:text-4xl font-bold mb-10 text-center reveal"><span class="text-gradient" data-i18n="skills_title">Keahlian & Teknologi</span></h2>
+    <h2 class="text-3xl md:text-4xl font-bold mb-4 text-center reveal"><span class="text-gradient" data-i18n="skills_title">Keahlian & Teknologi</span></h2>
+    <p class="text-gray-400 text-center mb-10 reveal" data-i18n="skills_sub">Pola implementasi yang berulang di setiap proyek — bukan sekadar daftar tools.</p>
+
+    <!-- POLA IMPLEMENTASI — tiap pola membuka buktinya di portfolio -->
+    <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <a href="#portfolio" class="glass glass-hover rounded-2xl p-6 reveal block transition hover:border-accent/60 flex flex-col">
+        <span class="text-2xl mb-3">📚</span>
+        <h3 class="font-bold mb-2" data-i18n="pat_rag_t">RAG untuk dokumen internal</h3>
+        <p class="text-sm text-gray-400 flex-1" data-i18n="pat_rag_d">Chatbot yang menjawab dari SOP, FAQ, dan dokumen bisnis Anda sendiri.</p>
+        <span class="text-xs font-mono text-accent mt-4" data-i18n="pat_cta">Lihat penerapannya →</span>
+      </a>
+      <a href="#portfolio" class="glass glass-hover rounded-2xl p-6 reveal block transition hover:border-accent/60 flex flex-col">
+        <span class="text-2xl mb-3">🔄</span>
+        <h3 class="font-bold mb-2" data-i18n="pat_flow_t">Otomasi workflow dengan LLM</h3>
+        <p class="text-sm text-gray-400 flex-1" data-i18n="pat_flow_d">Proses berulang — email, laporan, kurasi berita — dijalankan otomatis.</p>
+        <span class="text-xs font-mono text-accent mt-4" data-i18n="pat_cta">Lihat penerapannya →</span>
+      </a>
+      <a href="#portfolio" class="glass glass-hover rounded-2xl p-6 reveal block transition hover:border-accent/60 flex flex-col">
+        <span class="text-2xl mb-3">🧾</span>
+        <h3 class="font-bold mb-2" data-i18n="pat_cv_t">Screening CV & rekrutmen pintar</h3>
+        <p class="text-sm text-gray-400 flex-1" data-i18n="pat_cv_d">Seleksi kandidat otomatis sebelum sampai ke meja Anda.</p>
+        <span class="text-xs font-mono text-accent mt-4" data-i18n="pat_cta">Lihat penerapannya →</span>
+      </a>
+      <a href="#portfolio" class="glass glass-hover rounded-2xl p-6 reveal block transition hover:border-accent/60 flex flex-col">
+        <span class="text-2xl mb-3">🔌</span>
+        <h3 class="font-bold mb-2" data-i18n="pat_int_t">Integrasi AI ke sistem yang sudah berjalan</h3>
+        <p class="text-sm text-gray-400 flex-1" data-i18n="pat_int_d">Web app, bot, atau ERP/CRM yang ada dipasangi AI tanpa ganti sistem.</p>
+        <span class="text-xs font-mono text-accent mt-4" data-i18n="pat_cta">Lihat penerapannya →</span>
+      </a>
+    </div>
+
+    <p class="text-center text-xs font-mono text-gray-500 mb-4 reveal" data-i18n="stack_label">Stack yang dipakai</p>
     <div class="flex flex-wrap justify-center gap-4 mb-12 reveal" id="techGrid"></div>
     <div class="grid md:grid-cols-3 gap-6">
       <div class="glass glass-hover rounded-2xl p-6 reveal">
-        <h3 class="text-lg font-bold text-accent mb-4">🤖 AI & Machine Learning</h3>
+        <h3 class="text-lg font-bold text-accent mb-4">🤖 AI & LLM</h3>
         <div class="space-y-3">
-          <div><div class="flex justify-between text-sm mb-1"><span>TensorFlow / PyTorch</span><span class="text-accent">90%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-purple-600 h-2 rounded-full" data-width="90"></div></div></div>
-          <div><div class="flex justify-between text-sm mb-1 mt-3"><span>LLM & Embeddings</span><span class="text-accent">85%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-purple-600 h-2 rounded-full" data-width="85"></div></div></div>
-          <div><div class="flex justify-between text-sm mb-1 mt-3"><span>Computer Vision</span><span class="text-accent">80%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-purple-600 h-2 rounded-full" data-width="80"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span>LLM & Embeddings</span><span class="text-accent">90%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-purple-600 h-2 rounded-full" data-width="90"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1 mt-3"><span>Prompt Engineering / RAG</span><span class="text-accent">88%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-purple-600 h-2 rounded-full" data-width="88"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1 mt-3"><span>TensorFlow / PyTorch</span><span class="text-accent">80%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-purple-600 h-2 rounded-full" data-width="80"></div></div></div>
         </div>
       </div>
       <div class="glass glass-hover rounded-2xl p-6 reveal">
-        <h3 class="text-lg font-bold text-accent2 mb-4">⚙️ Backend & APIs</h3>
+        <h3 class="text-lg font-bold text-accent2 mb-4">⚙️ Integrasi & Backend</h3>
         <div class="space-y-3">
           <div><div class="flex justify-between text-sm mb-1"><span>Python / FastAPI</span><span class="text-accent2">95%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full" data-width="95"></div></div></div>
-          <div><div class="flex justify-between text-sm mb-1 mt-3"><span>Node.js / Express</span><span class="text-accent2">85%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full" data-width="85"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1 mt-3"><span>Bot Telegram / WhatsApp</span><span class="text-accent2">85%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full" data-width="85"></div></div></div>
           <div><div class="flex justify-between text-sm mb-1 mt-3"><span>Database & SQL</span><span class="text-accent2">88%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-purple-600 to-pink-600 h-2 rounded-full" data-width="88"></div></div></div>
         </div>
       </div>
       <div class="glass glass-hover rounded-2xl p-6 reveal">
-        <h3 class="text-lg font-bold text-accent mb-4">☁️ DevOps & Cloud</h3>
+        <h3 class="text-lg font-bold text-accent mb-4">☁️ Deployment</h3>
         <div class="space-y-3">
-          <div><div class="flex justify-between text-sm mb-1"><span>Docker / Kubernetes</span><span class="text-accent">82%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" data-width="82"></div></div></div>
-          <div><div class="flex justify-between text-sm mb-1 mt-3"><span>AWS / GCP</span><span class="text-accent">80%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" data-width="80"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1"><span>Vercel / GitHub Pages</span><span class="text-accent">90%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" data-width="90"></div></div></div>
+          <div><div class="flex justify-between text-sm mb-1 mt-3"><span>Docker</span><span class="text-accent">80%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" data-width="80"></div></div></div>
           <div><div class="flex justify-between text-sm mb-1 mt-3"><span>CI/CD & Monitoring</span><span class="text-accent">85%</span></div><div class="w-full bg-white/10 rounded-full h-2"><div class="skill-bar-fill bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" data-width="85"></div></div></div>
         </div>
       </div>
@@ -924,8 +958,8 @@
 
   /* === LANG === */
   var T={
-    en:{nav_about:"About",nav_portfolio:"Portfolio",nav_skills:"Skills",nav_blog:"Blog",nav_contact:"Contact",hero_desc:"Helping businesses adopt artificial intelligence — from idea, integration, to production systems with real impact.",hero_cta1:"View Portfolio",hero_cta2:"Contact Me",about_title:"About Me",about_p1:"I'm Jimmy Faber, an AI Implementator focused on applying AI technology to real business systems. I believe AI is not just a trend, but a tool that can transform how businesses operate — faster, smarter, more efficient.",about_p2:"With an IT background, I handle the full implementation cycle: requirements analysis, development, API/model integration, to deployment. My goal is to ensure each AI solution provides measurable and sustainable ROI.",skills_title:"Skills & Technologies",stat_projects:"AI Projects",stat_years:"Years Experience",stat_stars:"GitHub Stars",port_title:"Portfolio",port_sub:"Auto-fetched from GitHub — always up to date",filter_all:"All",filter_python:"Python",filter_js:"JavaScript",filter_ai:"AI/ML",blog_title:"Blog & Articles",blog_sub:"AI news & opinions on artificial intelligence implementation",contact_title:"Contact Me",c_email:"Email",f_name:"Full Name",f_email:"Email",f_msg:"Your message...",f_send:"Send Message 🚀",typewriter:["Implementator AI to Your Business System","AI • Data • Automation","Building AI Chatbots & Intelligent Agents","Email Automation • CV Screening • smart Recruitment","Telegram & WhatsApp Bots for Business","Healthcare AI • Education AI • Business Automation","RAG Systems • Prompt Engineering • LLM Integration","Turning Ideas into AI-Powered Solutions"]},
-  id:{nav_about:"Tentang",nav_portfolio:"Portfolio",nav_skills:"Skills",nav_blog:"Blog",nav_contact:"Kontak",hero_desc:"Membantu bisnis mengadopsi kecerdasan buatan — dari ide, integrasi, hingga sistem produksi yang berdampak nyata.",hero_cta1:"Lihat Portfolio",hero_cta2:"Hubungi Saya",about_title:"Tentang Saya",about_p1:"Saya Jimmy Faber, seorang AI Implementator yang berfokus pada penerapan teknologi AI ke dalam sistem bisnis nyata. Saya percaya AI bukan sekadar tren, melainkan alat yang mampu mentransformasi cara bisnis beroperasi — lebih cepat, lebih cerdas, lebih efisien.",about_p2:"Dengan latar belakang di bidang IT, saya menangani seluruh siklus implementasi: analisis kebutuhan, pengembangan, integrasi API/model, hingga deployment. Tujuan saya adalah memastikan setiap solusi AI memberikan ROI yang terukur dan sustainable.",skills_title:"Keahlian & Teknologi",stat_projects:"AI Projects",stat_years:"Tahun Experience",stat_stars:"GitHub Stars",port_title:"Portfolio",port_sub:"Data otomatis dari GitHub — selalu terbaru",filter_all:"Semua",filter_python:"Python",filter_js:"JavaScript",filter_ai:"AI/ML",blog_title:"Blog & Artikel",blog_sub:"Berita AI & opini seputar implementasi kecerdasan buatan",contact_title:"Hubungi Saya",c_email:"Email",f_name:"Nama Lengkap",f_email:"Email",f_msg:"Pesan Anda...",f_send:"Kirim Pesan 🚀",typewriter:["Implementator AI to Your Business System","AI • Data • Automation","Membangun Chatbot & Agent AI Cerdas","Otomasi Email • Screening CV • Rekrutmen Pintar","Bot Telegram & WhatsApp untuk Bisnis","Healthcare AI • Education AI • Business Automation","Sistem RAG • Prompt Engineering • Integrasi LLM","Mewujudkan Ide menjadi Solusi AI"]}
+    en:{nav_about:"About",nav_portfolio:"Portfolio",nav_skills:"Skills",nav_blog:"Blog",nav_contact:"Contact",hero_kicker:"Open to freelance projects",hero_desc:"I help SMEs and companies integrate AI into daily operations — from service chatbots to report automation — starting with a study of your actual business data and processes.",hero_cta1:"View Portfolio",hero_cta2:"Contact Me",about_title:"About Me",about_p1:"I'm Jimmy Faber. I started my career as a data analyst — cleaning, analyzing and reading business data — and that experience led me to my next profession: AI Implementator. That is exactly my edge: when embedding AI into an existing business system, the company's data has to be taken into account, so my approach always opens with a study of the client's current state, and that is where my data analyst skills matter most.",about_p2:"From that study I handle the full implementation cycle: requirements analysis, development, API/model integration, to deployment — making sure each AI solution plugs into real business data and provides measurable and sustainable ROI.",skills_title:"Skills & Technologies",skills_sub:"Implementation patterns that repeat across every project — not just a list of tools.",stack_label:"Stack in use",pat_rag_t:"RAG for internal documents",pat_rag_d:"Chatbots that answer from your own SOPs, FAQs and business documents.",pat_flow_t:"LLM workflow automation",pat_flow_d:"Recurring processes — email, reports, news curation — run automatically.",pat_cv_t:"CV screening & smart hiring",pat_cv_d:"Automatic candidate shortlisting before it reaches your desk.",pat_int_t:"AI into existing systems",pat_int_d:"Existing web apps, bots or ERP/CRM get AI without a system swap.",pat_cta:"See it applied →",stat_projects:"Projects in Portfolio",stat_years:"Years Experience",stat_years_proof:"Freelance since Feb 2022 →",stat_live:"Live Systems Deployed",stat_see_cases:"See the cases →",port_title:"Portfolio",port_sub:"Auto-fetched from GitHub — always up to date",filter_all:"All",filter_python:"Python",filter_js:"JavaScript",filter_ai:"AI/ML",blog_title:"Blog & Articles",blog_sub:"AI news & opinions on artificial intelligence implementation",contact_title:"Contact Me",c_email:"Email",f_name:"Full Name",f_email:"Email",f_msg:"Your message...",f_send:"Send Message 🚀",typewriter:["Implementator AI to Your Business System","AI • Data • Automation","Building AI Chatbots & Intelligent Agents","Email Automation • CV Screening • smart Recruitment","Telegram & WhatsApp Bots for Business","Healthcare AI • Education AI • Business Automation","RAG Systems • Prompt Engineering • LLM Integration","Turning Ideas into AI-Powered Solutions"]},
+  id:{nav_about:"Tentang",nav_portfolio:"Portfolio",nav_skills:"Skills",nav_blog:"Blog",nav_contact:"Kontak",hero_kicker:"Terbuka untuk proyek freelance",hero_desc:"Saya membantu UMKM dan perusahaan mengintegrasikan AI ke operasional harian — dari chatbot layanan hingga otomasi laporan — dengan studi dulu data dan proses bisnis Anda.",hero_cta1:"Lihat Portfolio",hero_cta2:"Hubungi Saya",about_title:"Tentang Saya",about_p1:"Saya Jimmy Faber. Saya berangkat dari data analyst — membersihkan, menganalisis, dan membaca data bisnis — dan dari pengalaman itulah saya melangkah ke profesi berikutnya: AI Implementator. Justru di situlah keunikan saya; saat mengimplementasikan AI ke sistem bisnis yang sudah berjalan, data bisnis yang ada harus diperhitungkan, sehingga pendekatan saya selalu dibuka dengan studi keadaan perusahaan atau klien, dan di tahap itu kemampuan data analyst berperan besar.",about_p2:"Dari studi keadaan tersebut saya menangani seluruh siklus implementasi: analisis kebutuhan, pengembangan, integrasi API/model, hingga deployment — memastikan setiap solusi AI terhubung dengan data dan proses bisnis yang nyata, dengan ROI yang terukur dan sustainable.",skills_title:"Keahlian & Teknologi",skills_sub:"Pola implementasi yang berulang di setiap proyek — bukan sekadar daftar tools.",stack_label:"Stack yang dipakai",pat_rag_t:"RAG untuk dokumen internal",pat_rag_d:"Chatbot yang menjawab dari SOP, FAQ, dan dokumen bisnis Anda sendiri.",pat_flow_t:"Otomasi workflow dengan LLM",pat_flow_d:"Proses berulang — email, laporan, kurasi berita — dijalankan otomatis.",pat_cv_t:"Screening CV & rekrutmen pintar",pat_cv_d:"Seleksi kandidat otomatis sebelum sampai ke meja Anda.",pat_int_t:"Integrasi AI ke sistem yang sudah berjalan",pat_int_d:"Web app, bot, atau ERP/CRM yang ada dipasangi AI tanpa ganti sistem.",pat_cta:"Lihat penerapannya →",stat_projects:"Proyek di Portfolio",stat_years:"Tahun Experience",stat_years_proof:"Freelance sejak Feb 2022 →",stat_live:"Sistem dengan Demo Live",stat_see_cases:"Lihat case-nya →",port_title:"Portfolio",port_sub:"Data otomatis dari GitHub — selalu terbaru",filter_all:"Semua",filter_python:"Python",filter_js:"JavaScript",filter_ai:"AI/ML",blog_title:"Blog & Artikel",blog_sub:"Berita AI & opini seputar implementasi kecerdasan buatan",contact_title:"Hubungi Saya",c_email:"Email",f_name:"Nama Lengkap",f_email:"Email",f_msg:"Pesan Anda...",f_send:"Kirim Pesan 🚀",typewriter:["Implementator AI to Your Business System","AI • Data • Automation","Membangun Chatbot & Agent AI Cerdas","Otomasi Email • Screening CV • Rekrutmen Pintar","Bot Telegram & WhatsApp untuk Bisnis","Healthcare AI • Education AI • Business Automation","Sistem RAG • Prompt Engineering • Integrasi LLM","Mewujudkan Ide menjadi Solusi AI"]}
   };
   var lang=localStorage.getItem('lang')||'id';
   function setLang(l){if(!T[l])l='id';lang=l;localStorage.setItem('lang',l);var t=T[l];document.querySelectorAll('[data-i18n]').forEach(function(e){if(t[e.dataset.i18n])e.textContent=t[e.dataset.i18n];});document.querySelectorAll('[data-i18n-ph]').forEach(function(e){if(t[e.dataset.i18nPh])e.placeholder=t[e.dataset.i18nPh];});startTW();}
@@ -956,9 +990,9 @@
     .then(function(repos){
       console.log('[Portfolio] repos loaded:', repos.length);
       allRepos=repos;
-      var ts=0;repos.forEach(function(r){ts+=r.stargazers_count;});
-      var se=document.getElementById('stat-stars'),pe=document.getElementById('stat-projects');
-      if(se)se.textContent=ts+'+';if(pe)pe.textContent=repos.length+'+';
+      var live=0;repos.forEach(function(r){if(r.homepage&&!r.fork)live++;});
+      var le=document.getElementById('stat-live'),pe=document.getElementById('stat-projects');
+      if(le)le.textContent=live+'+';if(pe)pe.textContent=repos.length+'+';
       renderRepos(repos);renderTechGrid(repos);loadBlogNews();loadBlogOpini();loadBlogKeseharian();
     })
     .catch(function(e){
@@ -1253,14 +1287,14 @@
     var DATA = {
       id: [
         { c: 'from portfolio import JimmyFaber', o: '<span class="t-success">&gt;&gt;&gt; </span>JimmyFaber loaded &mdash; <span style="color:#3fb950">AI Implementator</span>' },
-        { c: 'print(jimmy.about)', o: 'Saya Jimmy Faber, seorang AI Implementator yang berfokus pada\npenerapan teknologi AI ke dalam sistem bisnis nyata.\nSaya percaya AI bukan sekadar tren, melainkan alat yang\nmampu mentransformasi cara bisnis beroperasi &mdash; lebih cepat,\nlebih cerdas, lebih efisien.' },
-        { c: 'print(jimmy.experience)', o: 'Dengan latar belakang di bidang IT, saya menangani seluruh\nsiklus implementasi: analisis kebutuhan, pengembangan,\nintegrasi API/model, hingga deployment.\nTujuan saya: memastikan setiap solusi AI memberikan\nROI yang terukur dan sustainable.' },
+        { c: 'print(jimmy.about)', o: 'Saya berangkat dari data analyst, lalu naik level\nmenjadi AI Implementator. Keunikan saya justru di\nsitu: sebelum memasang AI ke sistem bisnis yang\nsudah berjalan, saya studi dulu data dan proses\nbisnis client &mdash; dan di sana kemampuan data\nanalyst saya berperan besar.' },
+        { c: 'print(jimmy.experience)', o: 'Dari studi keadaan itu saya menangani seluruh\nsiklus implementasi: analisis kebutuhan,\npengembangan, integrasi API/model, hingga\ndeployment &mdash; supaya solusi AI menyambung\ndengan data bisnis nyata dan memberi ROI yang\nterukur serta sustainable.' },
         { c: 'print("✅ Siap mengimplementasikan AI untuk bisnis Anda!")', o: '<span class="t-success">✅ Siap mengimplementasikan AI untuk bisnis Anda!</span>' }
       ],
       en: [
         { c: 'from portfolio import JimmyFaber', o: '<span class="t-success">&gt;&gt;&gt; </span>JimmyFaber loaded &mdash; <span style="color:#3fb950">AI Implementator</span>' },
-        { c: 'print(jimmy.about)', o: "I'm Jimmy Faber, an AI Implementator focused on applying\nAI technology to real business systems. I believe AI is\nnot just a trend, but a tool that can transform how\nbusinesses operate &mdash; faster, smarter, more efficient." },
-        { c: 'print(jimmy.experience)', o: "With an IT background, I handle the full implementation\ncycle: requirements analysis, development, API/model\nintegration, to deployment. My goal is to ensure each\nAI solution provides measurable and sustainable ROI." },
+        { c: 'print(jimmy.about)', o: "I started out as a data analyst, then leveled up\ninto an AI Implementator. That is my edge: before\nwiring AI into a running business system, I study\nthe client's data and processes first &mdash; and\nthat is where my data analyst skills matter." },
+        { c: 'print(jimmy.experience)', o: "From that study I run the full implementation\ncycle: requirements analysis, development,\nAPI/model integration, to deployment &mdash; so the\nAI solution plugs into real business data with\nmeasurable, sustainable ROI." },
         { c: 'print("✅ Ready to implement AI for your business!")', o: '<span class="t-success">✅ Ready to implement AI for your business!</span>' }
       ]
     };
