@@ -1,5 +1,6 @@
 -- ============================================
 -- HANYA tambahan baru (jalan schema v1 dulu)
+-- Aman dijalankan ulang: policy lama di-drop dulu sebelum dibuat ulang.
 -- ============================================
 
 -- 1. Tabel Blog Attachments (file PPT, video, dll)
@@ -16,17 +17,15 @@ CREATE TABLE IF NOT EXISTS blog_attachments (
 CREATE INDEX IF NOT EXISTS idx_attachments_post ON blog_attachments(post_id);
 
 -- 2. RLS untuk blog_attachments
+-- Tulis dilakukan server memakai service_role key (bypass RLS), jadi anon
+-- hanya butuh akses baca. Policy "FOR ALL USING (true)" tidak dibuat lagi.
 ALTER TABLE blog_attachments ENABLE ROW LEVEL SECURITY;
 
-DO $$ BEGIN
-  CREATE POLICY "Public read blog_attachments" ON blog_attachments FOR SELECT USING (true);
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
+DROP POLICY IF EXISTS "Public read blog_attachments" ON blog_attachments;
+DROP POLICY IF EXISTS "Service all blog_attachments" ON blog_attachments;
 
-DO $$ BEGIN
-  CREATE POLICY "Service all blog_attachments" ON blog_attachments FOR ALL USING (true);
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
+CREATE POLICY "Public read blog_attachments" ON blog_attachments
+  FOR SELECT TO anon, authenticated USING (true);
 
 -- 3. Storage Bucket untuk file attachments
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -51,20 +50,11 @@ VALUES (
 ) ON CONFLICT (id) DO NOTHING;
 
 -- 4. Storage Policies
-DO $$ BEGIN
-  CREATE POLICY "Public read storage" ON storage.objects
-    FOR SELECT USING (bucket_id = 'blog-attachments');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
+-- Upload dari browser memakai signed upload URL (ditandatangani server),
+-- jadi tidak perlu policy INSERT/DELETE untuk anon.
+DROP POLICY IF EXISTS "Public read storage" ON storage.objects;
+DROP POLICY IF EXISTS "Service insert storage" ON storage.objects;
+DROP POLICY IF EXISTS "Service delete storage" ON storage.objects;
 
-DO $$ BEGIN
-  CREATE POLICY "Service insert storage" ON storage.objects
-    FOR INSERT WITH CHECK (bucket_id = 'blog-attachments');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
-
-DO $$ BEGIN
-  CREATE POLICY "Service delete storage" ON storage.objects
-    FOR DELETE USING (bucket_id = 'blog-attachments');
-EXCEPTION WHEN duplicate_object THEN NULL;
-END $$;
+CREATE POLICY "Public read storage" ON storage.objects
+  FOR SELECT TO anon, authenticated USING (bucket_id = 'blog-attachments');

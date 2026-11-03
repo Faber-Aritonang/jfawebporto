@@ -23,7 +23,7 @@
 - 📰 **Berita Info AI** — RSS feed dari 8+ sumber AI, di-curate otomatis oleh Google Gemini API 2x sehari
 - ✍️ **Opini & Tulisan** — Blog pribadi, ditulis melalui Admin Panel
 - 🔐 **Admin Panel** — Dashboard untuk manage postingan opini (CRUD)
-- ⚡ **Cron Jobs** — Vercel Cron otomatis fetch & curate berita 2x sehari (08:00 & 20:00 WIB)
+- ⚡ **Cron Jobs** — Vercel Cron otomatis fetch & curate berita sekali sehari (08:00 WIB), plus tombol "Fetch berita sekarang" di admin
 
 ## 🛠️ Tech Stack
 
@@ -42,15 +42,21 @@
 ```
 jfawebporto/
 ├── index.html              # Portfolio website (HTML + CSS + JS)
-├── admin.html              # Blog admin panel
+├── blog.html               # Halaman detail artikel
+├── admin/index.html        # Blog admin panel (/admin)
 ├── package.json            # Dependencies
-├── vercel.json             # Vercel config (cron, rewrites)
+├── vercel.json             # Vercel config (cron)
+├── schema-v2.sql           # Database schema (blog, attachments, news, storage)
 ├── .env.example            # Environment variables template
 ├── api/
 │   ├── blog.js             # CRUD API untuk opini posts
 │   ├── news.js             # API untuk fetch curated news
+│   ├── upload.js           # Upload lampiran ke Supabase Storage
+│   ├── chat.js             # AI assistant (Gemini)
+│   ├── contact.js          # Form kontak (webhook atau Resend)
+│   ├── fetch-news.js       # Alias lama → api/cron/fetch-news.js
 │   └── cron/
-│       └── fetch-news.js   # Cron: RSS fetch + Gemini curation
+│       └── fetch-news.js   # Cron: RSS fetch + Gemini curation & terjemahan
 ├── lib/
 │   └── supabase.js         # Supabase client helper
 ├── scripts/
@@ -81,7 +87,15 @@ SUPABASE_SERVICE_KEY=eyJxxx...
 GEMINI_API_KEY=AIza...
 CRON_SECRET=your-random-secret
 ADMIN_PASSWORD=your-secure-password
+
+# Form kontak — isi salah satu (kalau kosong, form menawarkan kirim via aplikasi email)
+RESEND_API_KEY=re_xxxxxxxx
+CONTACT_TO_EMAIL=faber.aritonang@gmail.com
+CONTACT_FROM_EMAIL=Portfolio <onboarding@resend.dev>
+CONTACT_WEBHOOK_URL=
 ```
+
+> Server memakai `SUPABASE_SERVICE_KEY` untuk semua operasi tulis. Jalankan ulang `schema-v2.sql` setelah update agar policy RLS yang lama (`FOR ALL USING (true)`) terhapus.
 
 ### 4. Deploy
 ```bash
@@ -99,10 +113,15 @@ Di Vercel Dashboard → Settings → Environment Variables:
 
 ### Berita Info AI (Otomatis)
 ```
-RSS Feeds (8 sumber) → fetch-news.js → Gemini API (curation) → Supabase → /api/news → Frontend
-        ↑                                                                   
-   Vercel Cron (2x/day: 08:00 & 20:00 WIB)
+RSS Feeds (8 sumber) → cron/fetch-news.js → Gemini API (skor + terjemahan) → Supabase → /api/news → Frontend
+        ↑
+   Vercel Cron (harian 08:00 WIB) + tombol manual di admin
 ```
+
+Endpoint: `/api/cron/fetch-news` (alias lama `/api/fetch-news`).
+Autentikasi: `Authorization: Bearer $CRON_SECRET` (Vercel Cron) atau header `x-admin-token: $ADMIN_PASSWORD` (manual).
+
+Catatan: plan **Hobby** Vercel hanya mengizinkan cron sekali sehari — jadwal di `vercel.json` sudah disetel `0 1 * * *`. Untuk 2x sehari (08:00 & 20:00 WIB) di plan Pro, ubah jadi `0 1,13 * * *`.
 
 ### Opini & Tulisan (Manual)
 ```

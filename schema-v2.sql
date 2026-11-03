@@ -1,6 +1,11 @@
 -- ============================================
 -- JFA Web Portfolio — Database Schema v2
 -- Jalankan di: Supabase Dashboard → SQL Editor → New Query
+--
+-- AMAN DIJALANKAN BERULANG: setiap CREATE POLICY selalu didahului
+-- DROP POLICY IF EXISTS. Kalau SQL Editor menampilkan error
+-- "policy ... already exists", berarti yang dijalankan masih salinan lama —
+-- tutup tab query tersebut, buka ulang file ini dari repo, lalu Run lagi.
 -- ============================================
 
 -- 1. Blog Posts (Opini + AI Keseharian)
@@ -53,25 +58,30 @@ CREATE INDEX IF NOT EXISTS idx_news_published ON news_articles(published_at DESC
 CREATE INDEX IF NOT EXISTS idx_news_fetched ON news_articles(fetched_at DESC);
 
 -- 4. Row Level Security
+-- Semua operasi tulis dilakukan server memakai service_role key, yang otomatis
+-- bypass RLS. Jadi policy di bawah hanya perlu mengatur akses baca publik —
+-- JANGAN menambah policy "FOR ALL USING (true)", karena itu membuka tulis
+-- untuk siapa pun yang memegang anon key.
+
 ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE blog_attachments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE news_articles ENABLE ROW LEVEL SECURITY;
 
+-- Idempotent: aman dijalankan ulang untuk migrasi database yang sudah ada
+DROP POLICY IF EXISTS "Public read blog_posts" ON blog_posts;
+DROP POLICY IF EXISTS "Public read blog_attachments" ON blog_attachments;
+DROP POLICY IF EXISTS "Public read news_articles" ON news_articles;
+DROP POLICY IF EXISTS "Service all blog_posts" ON blog_posts;
+DROP POLICY IF EXISTS "Service all blog_attachments" ON blog_attachments;
+DROP POLICY IF EXISTS "Service all news_articles" ON news_articles;
+
 -- Public read policies
 CREATE POLICY "Public read blog_posts" ON blog_posts
-  FOR SELECT USING (published = true);
+  FOR SELECT TO anon, authenticated USING (published = true);
 CREATE POLICY "Public read blog_attachments" ON blog_attachments
-  FOR SELECT USING (true);
+  FOR SELECT TO anon, authenticated USING (true);
 CREATE POLICY "Public read news_articles" ON news_articles
-  FOR SELECT USING (true);
-
--- Service role full access
-CREATE POLICY "Service all blog_posts" ON blog_posts
-  FOR ALL USING (true);
-CREATE POLICY "Service all blog_attachments" ON blog_attachments
-  FOR ALL USING (true);
-CREATE POLICY "Service all news_articles" ON news_articles
-  FOR ALL USING (true);
+  FOR SELECT TO anon, authenticated USING (true);
 
 -- 5. Supabase Storage Bucket untuk file attachments
 INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
@@ -96,11 +106,11 @@ VALUES (
 ) ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies
+-- Upload dari browser memakai signed upload URL (ditandatangani server dengan
+-- service_role key), jadi tidak perlu policy INSERT/DELETE untuk anon.
+DROP POLICY IF EXISTS "Public read storage" ON storage.objects;
+DROP POLICY IF EXISTS "Service insert storage" ON storage.objects;
+DROP POLICY IF EXISTS "Service delete storage" ON storage.objects;
+
 CREATE POLICY "Public read storage" ON storage.objects
-  FOR SELECT USING (bucket_id = 'blog-attachments');
-
-CREATE POLICY "Service insert storage" ON storage.objects
-  FOR INSERT WITH CHECK (bucket_id = 'blog-attachments');
-
-CREATE POLICY "Service delete storage" ON storage.objects
-  FOR DELETE USING (bucket_id = 'blog-attachments');
+  FOR SELECT TO anon, authenticated USING (bucket_id = 'blog-attachments');

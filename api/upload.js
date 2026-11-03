@@ -1,15 +1,62 @@
 /**
- * Upload API — Blog File Attachments
- * 
- * POST /api/upload → Upload file to Supabase Storage
- * DELETE /api/upload?id=xxx → Delete file
+ * Upload API — lampiran blog langsung ke Supabase Storage (signed upload URL)
+ *
+ * POST /api/upload  { action: 'sign', file_name, file_type, file_size }
+ *   → { upload_url, token, path, public_url }
+ *   Browser melakukan PUT langsung ke `upload_url`, jadi ukuran file tidak
+ *   dibatasi body-parser Vercel (±4.5MB) melainkan limit bucket (100MB).
+ *
+ * POST /api/upload  { action: 'finalize', post_id, file_name, file_url, file_type, file_size }
+ *   → { attachment }
+ *
+ * DELETE /api/upload?id=xxx → hapus objek Storage + baris DB
  */
 
 const { getSupabase } = require('../lib/supabase');
 
+const BUCKET = 'blog-attachments';
+const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB — sama dengan file_size_limit bucket
+const ALLOWED_TYPES = [
+  'application/pdf',
+  'application/vnd.ms-powerpoint',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'video/mp4',
+  'video/webm',
+  'image/jpeg',
+  'image/png',
+  'image/gif',
+  'image/webp',
+  'text/plain',
+  'application/zip',
+];
+
+const EXT_BY_TYPE = {
+  'application/pdf': 'pdf',
+  'application/vnd.ms-powerpoint': 'ppt',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+  'video/mp4': 'mp4',
+  'video/webm': 'webm',
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/gif': 'gif',
+  'image/webp': 'webp',
+  'text/plain': 'txt',
+  'application/zip': 'zip',
+};
+
 function checkAdmin(req) {
   const auth = req.headers.authorization || '';
   return auth.replace('Bearer ', '') === process.env.ADMIN_PASSWORD;
+}
+
+function safeExtension(fileName, fileType) {
+  const match = /\.([a-z0-9]{1,8})$/i.exec(String(fileName || ''));
+  if (match) return match[1].toLowerCase();
+  return EXT_BY_TYPE[fileType] || 'bin';
+}
+
+function publicPrefix() {
+  return `${(process.env.SUPABASE_URL || '').replace(/\/$/, '')}/storage/v1/object/public/${BUCKET}/`;
 }
 
 module.exports = async (req, res) => {
@@ -25,64 +72,78 @@ module.exports = async (req, res) => {
 
     const supabase = getSupabase();
 
-    // === POST: Upload file ===
+    // === POST: sign / finalize ===
     if (req.method === 'POST') {
-      const contentType = req.headers['content-type'] || '';
-      
-      if (!contentType.includes('multipart/form-data')) {
-        return res.status(400).json({ error: 'Send as multipart/form-data' });
+      let body = req.body;
+      if (typeof body === 'string') {
+        try { body = JSON.parse(body); } catch { body = {}; }
       }
+      body = body || {};
 
-      // Parse multipart manually (Vercel serverless doesn't have multer)
-      const chunks = [];
-      for await (const chunk of req) chunks.push(chunk);
-      const buffer = Buffer.concat(chunks);
-      
-      // Simple boundary parse
-      const boundary = contentType.split('boundary=')[1];
-      if (!boundary) return res.status(400).json({ error: 'No boundary' });
+      const action = body.action || 'sign';
 
-      const parts = parseMultipart(buffer, boundary);
-      const file = parts.find(p => p.filename);
-      const postId = parts.find(p => p.name === 'post_id');
+      // --- Step 1: izin upload + URL tujuan ---
+      if (action === 'sign') {
+        const fileName = String(body.file_name || '').trim();
+        const fileType = String(body.file_type || '').trim();
+        const fileSize = Number(body.file_size || 0);
 
-      if (!file) {
-        return res.status(400).json({ error: 'No file provided' });
-      }
+        if (!fileName) return res.status(400).json({ error: 'file_name wajib diisi' });
+        if (!ALLOWED_TYPES.includes(fileType)) {
+          return res.status(400).json({ error: `Tipe file tidak didukung: ${fileType || 'unknown'}` });
+        }
+        if (!Number.isFinite(fileSize) || fileSize <= 0) {
+          return res.status(400).json({ error: 'file_size tidak valid' });
+        }
+        if (fileSize > MAX_FILE_SIZE) {
+          return res.status(400).json({ error: 'File terlalu besar (maks 100MB)' });
+        }
 
-      // Upload to Supabase Storage
-      const ext = file.filename.split('.').pop();
-      const filePath = `attachments/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const ext = safeExtension(fileName, fileType);
+        const path = `attachments/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${ext}`;
 
-      const { data: uploadData, error: uploadError } = await supabase
-        .storage
-        .from('blog-attachments')
-        .upload(filePath, file.data, {
-          contentType: file.contentType,
-          upsert: false
+        const { data, error } = await supabase.storage.from(BUCKET).createSignedUploadUrl(path);
+        if (error) throw error;
+
+        const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
+
+        return res.status(200).json({
+          upload_url: data.signedUrl,
+          token: data.token,
+          path: data.path || path,
+          public_url: urlData.publicUrl,
         });
+      }
 
-      if (uploadError) throw uploadError;
+      // --- Step 2: catat lampiran ke database setelah upload selesai ---
+      if (action === 'finalize') {
+        const postId = body.post_id;
+        const fileName = String(body.file_name || '').trim();
+        const fileUrl = String(body.file_url || '').trim();
+        const fileType = String(body.file_type || '').trim();
+        const fileSize = Number(body.file_size || 0);
 
-      // Get public URL
-      const { data: urlData } = supabase
-        .storage
-        .from('blog-attachments')
-        .getPublicUrl(filePath);
+        if (!postId) return res.status(400).json({ error: 'post_id wajib diisi' });
+        if (!fileName) return res.status(400).json({ error: 'file_name wajib diisi' });
+        if (!ALLOWED_TYPES.includes(fileType)) {
+          return res.status(400).json({ error: 'Tipe file tidak didukung' });
+        }
+        if (!fileUrl.startsWith(publicPrefix())) {
+          return res.status(400).json({ error: 'file_url harus berasal dari bucket blog-attachments' });
+        }
+        if (!Number.isFinite(fileSize) || fileSize <= 0 || fileSize > MAX_FILE_SIZE) {
+          return res.status(400).json({ error: 'Ukuran file tidak valid' });
+        }
 
-      // Save to blog_attachments table
-      const attachmentData = {
-        post_id: postId?.value || null,
-        file_name: file.filename,
-        file_url: urlData.publicUrl,
-        file_type: file.contentType,
-        file_size: file.data.length
-      };
-
-      if (postId?.value) {
         const { data, error } = await supabase
           .from('blog_attachments')
-          .insert(attachmentData)
+          .insert({
+            post_id: postId,
+            file_name: fileName,
+            file_url: fileUrl,
+            file_type: fileType,
+            file_size: Math.round(fileSize),
+          })
           .select()
           .single();
 
@@ -90,34 +151,25 @@ module.exports = async (req, res) => {
         return res.status(201).json({ attachment: data });
       }
 
-      return res.status(201).json({
-        attachment: {
-          ...attachmentData,
-          id: null,
-          message: 'File uploaded. Link post_id later via PUT.'
-        }
-      });
+      return res.status(400).json({ error: 'action harus "sign" atau "finalize"' });
     }
 
-    // === DELETE: Delete file ===
+    // === DELETE: hapus objek Storage + baris DB ===
     if (req.method === 'DELETE') {
-      const { id, file_url } = req.query;
-      if (!id && !file_url) return res.status(400).json({ error: 'ID or file_url required' });
+      const { id } = req.query;
+      if (!id) return res.status(400).json({ error: 'ID required' });
 
-      if (id) {
-        // Get file path from DB
-        const { data: att } = await supabase
-          .from('blog_attachments')
-          .select('file_url')
-          .eq('id', id)
-          .single();
+      const { data: att } = await supabase
+        .from('blog_attachments')
+        .select('file_url')
+        .eq('id', id)
+        .single();
 
-        if (att?.file_url) {
-          const path = att.file_url.split('/blog-attachments/')[1];
-          if (path) await supabase.storage.from('blog-attachments').remove([path]);
-        }
-        await supabase.from('blog_attachments').delete().eq('id', id);
+      if (att?.file_url) {
+        const path = att.file_url.split(`/${BUCKET}/`)[1];
+        if (path) await supabase.storage.from(BUCKET).remove([path]);
       }
+      await supabase.from('blog_attachments').delete().eq('id', id);
 
       return res.status(200).json({ success: true });
     }
@@ -129,37 +181,3 @@ module.exports = async (req, res) => {
     return res.status(500).json({ error: err.message || 'Internal server error' });
   }
 };
-
-// Simple multipart parser
-function parseMultipart(buffer, boundary) {
-  const parts = [];
-  const boundaryBuf = Buffer.from('--' + boundary);
-  let start = buffer.indexOf(boundaryBuf) + boundaryBuf.length + 2;
-
-  while (start < buffer.length) {
-    const end = buffer.indexOf(boundaryBuf, start);
-    if (end === -1) break;
-
-    const partData = buffer.slice(start, end - 2); // -2 for \r\n
-    const headerEnd = partData.indexOf('\r\n\r\n');
-    if (headerEnd === -1) { start = end + boundaryBuf.length + 2; continue; }
-
-    const headers = partData.slice(0, headerEnd).toString();
-    const body = partData.slice(headerEnd + 4);
-
-    const nameMatch = headers.match(/name="([^"]+)"/);
-    const filenameMatch = headers.match(/filename="([^"]+)"/);
-    const contentTypeMatch = headers.match(/Content-Type:\s*(.+)/i);
-
-    parts.push({
-      name: nameMatch?.[1],
-      filename: filenameMatch?.[1],
-      contentType: contentTypeMatch?.[1]?.trim() || 'application/octet-stream',
-      data: body,
-      value: body.toString()
-    });
-
-    start = end + boundaryBuf.length + 2;
-  }
-  return parts;
-}

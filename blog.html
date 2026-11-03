@@ -126,21 +126,49 @@
   }
 
   function renderMarkdown(md) {
-    return md
-      .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-      .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-      .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-      .replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>')
-      .replace(/^- (.+)$/gm, '<li>$1</li>')
-      .replace(/(<li>.*<\/li>\n?)+/g, '<ul>$&</ul>')
-      .replace(/\n{2,}/g, '</p><p>')
-      .replace(/\n/g, '<br>')
-      .replace(/^(.+)$/gm, function(m) { if (m.match(/^<[hupbolt]/)) return m; return m; })
-      .replace(/^(?!<[hupbolt])((?!^$).+)$/gm, '<p>$1</p>');
+    var blocks = [];
+    // Escape HTML lebih dulu — konten tidak boleh bisa menyuntikkan tag
+    var src = esc(String(md || '')).replace(/\r\n/g, '\n');
+
+    // Blok kode dipisah agar isinya tidak ikut diproses sebagai markdown
+    src = src.replace(/```(\w*)\n?([\s\S]*?)```/g, function(m, lang, code) {
+      blocks.push('<pre><code class="language-' + lang + '">' + code.replace(/^\n+|\n+$/g, '') + '</code></pre>');
+      return '\u0000' + (blocks.length - 1) + '\u0000';
+    });
+
+    function inline(t) {
+      return t
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>')
+        .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+    }
+
+    var html = src.split(/\n{2,}/).map(function(block) {
+      block = block.trim();
+      if (!block) return '';
+      if (/^\u0000\d+\u0000$/.test(block)) return block;
+
+      var lines = block.split('\n').map(function(l) { return l.trim(); });
+      if (lines.every(function(l) { return /^([-*]|\d+\.)\s+/.test(l); })) {
+        return '<ul>' + lines.map(function(l) {
+          return '<li>' + inline(l.replace(/^([-*]|\d+\.)\s+/, '')) + '</li>';
+        }).join('') + '</ul>';
+      }
+
+      var heading = block.match(/^(#{1,6})\s+(.+)$/);
+      if (heading) {
+        var level = heading[1].length;
+        return '<h' + level + '>' + inline(heading[2]) + '</h' + level + '>';
+      }
+
+      var quote = block.match(/^&gt;\s?([\s\S]+)$/);
+      if (quote) return '<blockquote>' + inline(quote[1]).replace(/\n/g, '<br>') + '</blockquote>';
+
+      return '<p>' + inline(block).replace(/\n/g, '<br>') + '</p>';
+    }).join('\n');
+
+    return html.replace(/\u0000(\d+)\u0000/g, function(m, i) { return blocks[+i]; });
   }
 
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }

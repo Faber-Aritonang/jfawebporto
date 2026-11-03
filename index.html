@@ -764,6 +764,7 @@
         <label for="message" class="block text-sm font-mono text-accent mb-2">$ message</label>
         <textarea id="message" name="message" required rows="5" placeholder="Pesan Anda..." data-i18n-ph="f_msg" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-accent transition resize-none"></textarea>
       </div>
+      <input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" class="hidden">
       <button type="submit" class="btn-glow w-full py-3 rounded-xl font-semibold transition hover:shadow-lg" data-i18n="f_send">Kirim Pesan 🚀</button>
       <p class="text-xs text-gray-500 text-center mt-2">💡 Atau hubungi langsung via <a href="https://t.me/jimmyfaberaritonang_bot" class="text-accent hover:underline">Telegram</a></p>
     </form>
@@ -1187,12 +1188,28 @@
 
   /* === FORM === */
   try{
+    function mailtoFallback(d){
+      var subject=(d.subject||(lang==='en'?'Message from portfolio':'Pesan dari portfolio'))+' — '+d.name;
+      var body=d.message+'\n\n—\n'+d.name+'\n'+d.email;
+      window.location.href='mailto:faber.aritonang@gmail.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+      toastr.info(lang==='en'?'Opening your email app...':'Membuka aplikasi email Anda...');
+    }
     var cf=document.getElementById('contactForm');
     if(cf)cf.addEventListener('submit',async function(e){
-      e.preventDefault();var fd=new FormData(e.target);
-      try{var r=await fetch('https://formspree.io/f/YOUR_FORMSPREE_ID',{method:'POST',body:fd,headers:{'Accept':'application/json'}});
-        if(r.ok){toastr.success(lang==='en'?'Sent!':'Terkirim!');e.target.reset();}else toastr.error(lang==='en'?'Failed':'Gagal');
-      }catch(er){toastr.error(lang==='en'?'Error':'Kesalahan');}
+      e.preventDefault();
+      var fd=new FormData(e.target);
+      var data={name:fd.get('name')||'',email:fd.get('email')||'',subject:fd.get('subject')||'',message:fd.get('message')||'',website:fd.get('website')||''};
+      var btn=cf.querySelector('button[type="submit"]');
+      var label=btn?btn.textContent:'';
+      if(btn){btn.disabled=true;btn.textContent=lang==='en'?'Sending...':'Mengirim...';}
+      try{
+        var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+        var d={};try{d=await r.json();}catch(_){}
+        if(r.ok){toastr.success(lang==='en'?'Message sent!':'Pesan terkirim!');e.target.reset();}
+        else if(r.status===503){mailtoFallback(data);}
+        else{toastr.error(d.error||(lang==='en'?'Failed to send':'Gagal mengirim'));}
+      }catch(er){mailtoFallback(data);}
+      finally{if(btn){btn.disabled=false;btn.textContent=label;}}
     });
   }catch(e){}
 
@@ -1228,6 +1245,20 @@
       chatToggleIcon.textContent = '🤖';
     };
 
+    // Escape HTML dulu, baru ubah markdown link yang aman → mencegah XSS dari balasan model
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function renderChatReply(text) {
+      return escHtml(text)
+        .replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function(m, label, url) {
+          if (!/^(https?:\/\/|mailto:)/i.test(url)) return label;
+          return '<a href="' + url + '" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">' + label + '</a>';
+        })
+        .replace(/\*\*/g, '')
+        .replace(/\n/g, '<br>');
+    }
+
     chatForm.onsubmit = function(e) {
       e.preventDefault();
       var msg = chatInput.value.trim();
@@ -1256,14 +1287,7 @@
       .then(function(r) { return r.json(); })
       .then(function(d) {
         typingDiv.className = 'chat-msg bot';
-        var reply = d.reply || 'Maaf, terjadi kesalahan.';
-        // Parse markdown links [text](url) to HTML <a>
-        reply = reply.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-cyan-400 hover:underline">$1</a>');
-        // Remove leftover ** bold markers
-        reply = reply.replace(/\*\*/g, '');
-        // Convert line breaks to <br>
-        reply = reply.replace(/\n/g, '<br>');
-        typingDiv.innerHTML = reply;
+        typingDiv.innerHTML = renderChatReply(d.reply || 'Maaf, terjadi kesalahan.');
         chatMessages.scrollTop = chatMessages.scrollHeight;
       })
       .catch(function() {
