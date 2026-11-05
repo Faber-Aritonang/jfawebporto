@@ -1,6 +1,7 @@
 # 🚀 JFA Web Portfolio
 
 > **Jimmy Faber — Implementator AI to Your Business System**
+>
 > Website portfolio pribadi dengan **blog backend**, **AI news curation**, dan **admin panel**.
 
 ![Status](https://img.shields.io/badge/status-live-brightgreen) ![Tech](https://img.shields.io/badge/TailwindCSS-v3-38bdf8) ![Backend](https://img.shields.io/badge/Backend-Supabase+Vercel-green)
@@ -29,7 +30,7 @@
 ## 🛠️ Tech Stack
 
 | Kategori | Teknologi |
-|---|---|
+|:---|:---|
 | Frontend | HTML5, Tailwind CSS (CDN), Vanilla JavaScript |
 | Backend | Vercel Serverless Functions |
 | Database | Supabase (PostgreSQL) |
@@ -108,18 +109,14 @@ Form kontak memakai `CONTACT_WEBHOOK_URL` kalau diisi; kalau tidak, pesan dikiri
 > Server memakai `SUPABASE_SERVICE_KEY` untuk semua operasi tulis (service role bypass RLS). Kalau key ini kosong, `lib/supabase.js` turun ke anon key dan menulis warning di log — jangan dipakai di production. Jalankan ulang `schema-v2.sql` setelah update agar policy RLS lama (`FOR ALL USING (true)`) terhapus.
 
 ### 4. Deploy
-```bash
-git add .
-git commit -m "feat: blog backend with AI curation"
-git push origin main
-```
+Import repo ini di [Vercel](https://vercel.com/new); setiap push ke `main` otomatis ter-deploy. Perintah push-nya ada di bagian **Deployment** di bawah.
 
 ### 5. Set Vercel Cron Secret
 Di Vercel Dashboard → Settings → Environment Variables:
 - Tambah `CRON_SECRET` (bisa random string)
 - Vercel Cron otomatis menggunakan ini untuk autentikasi
 
-## 📊 How It Works
+## 🔄 Cara Kerja
 
 ### Berita Info AI (Otomatis)
 ```
@@ -135,10 +132,10 @@ Detail pipeline di `api/cron/fetch-news.js`:
 - Kalau `GEMINI_API_KEY` kosong atau Gemini gagal, artikel tetap disimpan sebagai fallback (skor 50, teks asli) — pipeline tidak berhenti.
 - Upsert `onConflict: url`, lalu hanya **200 artikel terbaru** yang dipertahankan (`fetched_at`).
 
-Endpoint: `/api/cron/fetch-news` (alias lama `/api/fetch-news`, keduanya GET/POST).
-Autentikasi: `Authorization: Bearer $CRON_SECRET` (dipakai Vercel Cron) atau header `x-admin-token: $ADMIN_PASSWORD` (dipakai tombol manual di admin).
+- **Endpoint:** `/api/cron/fetch-news` (alias lama `/api/fetch-news`, keduanya GET/POST).
+- **Autentikasi:** `Authorization: Bearer $CRON_SECRET` (dipakai Vercel Cron) atau header `x-admin-token: $ADMIN_PASSWORD` (dipakai tombol manual di admin).
 
-Catatan: plan **Hobby** Vercel hanya mengizinkan cron sekali sehari — jadwal di `vercel.json` sudah disetel `0 1 * * *` (08:00 WIB). Untuk 2x sehari (08:00 & 20:00 WIB) di plan Pro, ubah jadi `0 1,13 * * *`.
+> **Catatan plan Hobby:** Vercel hanya mengizinkan cron sekali sehari — jadwal di `vercel.json` sudah disetel `0 1 * * *` (08:00 WIB). Untuk 2x sehari (08:00 & 20:00 WIB) di plan Pro, ubah jadi `0 1,13 * * *`.
 
 ### Opini & Tulisan (Manual)
 ```
@@ -153,7 +150,7 @@ Admin Panel (/admin) → /api/blog (POST/PUT) → Supabase → /api/blog (GET) �
 ## 🧩 API Backend Blog
 
 | Method | Endpoint | Auth | Fungsi |
-|---|---|---|---|
+|:---|:---|:---|:---|
 | `GET` | `/api/blog` | publik | List postingan published (`limit`, `offset`, `category`) |
 | `GET` | `/api/blog?slug=xxx` | publik | Detail satu postingan + lampiran |
 | `GET` | `/api/blog?auth=check` | admin | Cek password admin (login panel) |
@@ -185,17 +182,17 @@ File tidak melewati body-parser Vercel (±4.5MB), jadi batasnya mengikuti bucket
 
 ## 🌍 Live Demo
 
-🔗 **[jfawebporto.vercel.app](https://jfawebporto.vercel.app)**
-🔐 **[jfawebporto.vercel.app/admin](https://jfawebporto.vercel.app/admin)** — Admin panel
+- 🔗 **Website:** [jfawebporto.vercel.app](https://jfawebporto.vercel.app)
+- 🔐 **Admin panel:** [jfawebporto.vercel.app/admin](https://jfawebporto.vercel.app/admin)
 
-## 📝 Customization
+## 🎨 Kustomisasi
 
 ### RSS Feeds
 Edit array `RSS_FEEDS` di `api/cron/fetch-news.js` untuk menambah/mengganti sumber berita.
 
-### Blog Categories
-Kategori berita: `ai-news`, `llm`, `computer-vision`, `ai-business`, `open-source`, `regulation`
-Kategori opini: `opini`, `ai-keseharian`, `tutorial`, `review`, `insight`
+### Kategori Blog
+- **Berita:** `ai-news`, `llm`, `computer-vision`, `ai-business`, `open-source`, `regulation`
+- **Opini:** `opini`, `ai-keseharian`, `tutorial`, `review`, `insight`
 
 ## 🚀 Deployment
 
