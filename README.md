@@ -120,9 +120,9 @@ Di Vercel Dashboard → Settings → Environment Variables:
 
 ### Berita Info AI (Otomatis)
 ```
-RSS (8 sumber) → api/cron/fetch-news.js → Gemini (skor + terjemahan) → Supabase → /api/news → Frontend
+RSS (8 sumber) → api/cron/fetch-news.js → Gemini → Supabase → /api/news → Frontend
         ↑
-   Vercel Cron (08:00 WIB) + tombol "Fetch berita sekarang" di admin
+   Vercel Cron 08:00 WIB + tombol "Fetch berita sekarang" di admin
 ```
 
 Detail pipeline di `api/cron/fetch-news.js`:
@@ -139,7 +139,8 @@ Detail pipeline di `api/cron/fetch-news.js`:
 
 ### Opini & Tulisan (Manual)
 ```
-Admin Panel (/admin) → /api/blog (POST/PUT) → Supabase → /api/blog (GET) → index.html / blog.html
+Admin Panel (/admin) → /api/blog (POST/PUT) → Supabase
+Supabase → /api/blog (GET) → index.html / blog.html
 ```
 
 - Publik hanya melihat `published = true`; admin (header `Authorization: Bearer $ADMIN_PASSWORD`) juga melihat draft.
